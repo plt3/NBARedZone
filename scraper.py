@@ -1,4 +1,5 @@
-import requests
+import subprocess
+
 from bs4 import BeautifulSoup
 
 
@@ -10,12 +11,18 @@ class Scraper:
     ):
         self.url = url
         self.htmlParser = htmlParser
+        self.requestHeaders = {
+            "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0"
+        }
 
     def get(self, url: str) -> BeautifulSoup:
-        page = requests.get(url)
-        page.raise_for_status()
+        print("Getting " + url)
+        command = ["curl", url]
+        # weirdly requests.get is very unreliable but curl works great.
+        # No idea why, tried to change user agent and that didn't do anything
+        process = subprocess.run(command, capture_output=True, text=True)
 
-        soupObject = BeautifulSoup(page.text, self.htmlParser)
+        soupObject = BeautifulSoup(process.stdout, self.htmlParser)
 
         return soupObject
 
@@ -24,10 +31,10 @@ class Scraper:
             return BeautifulSoup(f.read(), self.htmlParser)
 
     def getGamePages(self) -> dict[str, str]:
-        """Return list of all links of game pages for all games listed on self.url"""
+        """Return list of all links of game pages for all games listed at self.url"""
 
-        # soup = self.get(self.url)
-        soup = self.getFromFile("ugh.html")
+        soup = self.get(self.url)
+        # soup = self.getFromFile("ugh.html")
         gameDivs = soup.select("main.pushContain div.row div.col-md-4")
         gamePageLinks = {}
 
@@ -40,13 +47,13 @@ class Scraper:
 
         return gamePageLinks
 
-    def getGameLink(self, url: str) -> str:
+    def getGameLink(self, url: str) -> tuple[str, bool]:
         """Given url to a SportSurge game page, return link to BestSolaris stream
         if present, or first link listed if not. Return empty string if game is not live
         """
 
-        # soup = self.get(url)
-        soup = self.getFromFile("soccer.html")
+        soup = self.get(url)
+        # soup = self.getFromFile("soccer.html")
         eventStatus = soup.select_one("div.event-status")
         bestLinkIfNoBS = ""
 
@@ -64,30 +71,44 @@ class Scraper:
                                 rowHeader is not None
                                 and rowHeader.text.strip().lower() == "bestsolaris"
                             ):
-                                return linkHref
+                                return (linkHref, True)
                             if firstIteration:
                                 bestLinkIfNoBS = linkHref
                                 firstIteration = False
 
-        return bestLinkIfNoBS
+        return (bestLinkIfNoBS, False)
 
     def getStreamLinkFromBSPage(self, url: str) -> str:
         """Given BestSolaris stream page, return link to steam link for embedding"""
 
         # soup = self.getFromFile("torino.html")
         soup = self.get(url)
-        shortlink = soup.select_one("link[rel='shortlink']")
+        textarea = soup.select_one("textarea")
 
-        if shortlink is not None:
-            linkHref = shortlink.get("href")
-            if linkHref is not None:
-                return str(linkHref)
+        if textarea is not None:
+            text = textarea.text
+            if text is not None:
+                text = text[text.index("https") :]
+                return text[: text.index('"')]
 
         raise Exception("BestSolaris streaming link not found")
+
+    def getAllLiveStreams(self) -> dict[str, str]:
+        """Main function to return all embedding links for all live games.
+        Currently takes ~30 seconds to run all requests sequentially"""
+        pages = self.getGamePages()
+        returnDict = {}
+
+        for game, page in pages.items():
+            streamLink, isBestSolaris = self.getGameLink(page)
+            if streamLink != "":
+                if isBestSolaris:
+                    streamLink = self.getStreamLinkFromBSPage(streamLink)
+                returnDict[game] = streamLink
+
+        return returnDict
 
 
 if __name__ == "__main__":
     scr = Scraper()
-    scr.getGamePages()
-    a = scr.getGameLink("a")
-    print(a)
+    __import__("pprint").pprint(scr.getAllLiveStreams())
