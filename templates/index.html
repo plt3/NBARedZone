@@ -7,43 +7,44 @@
     <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet" />
   </head>
   <body>
-    <main class="fourContainer">
-      <iframe
-        class="frame"
-        id="one"
-        frameborder="0"
-        src="https://bestsolaris.com/solaris.php?postid=44665"
-        allowfullscreen
-        scrolling="yes"
-        allowtransparency
-      ></iframe>
-      <iframe
-        class="frame"
-        id="two"
-        frameborder="0"
-        src="https://bestsolaris.com/solaris.php?postid=44667"
-        allowfullscreen
-        scrolling="yes"
-        allowtransparency
-      ></iframe>
-      <iframe
-        class="frame"
-        id="three"
-        frameborder="0"
-        src="https://bestsolaris.com/solaris.php?postid=44579"
-        allowfullscreen
-        scrolling="yes"
-        allowtransparency
-      ></iframe>
-      <iframe
-        class="frame"
-        id="four"
-        frameborder="0"
-        src="https://bestsolaris.com/solaris.php?postid=44666"
-        allowfullscreen
-        scrolling="yes"
-        allowtransparency
-      ></iframe>
+    <main>
+      <div id="loading-screen">
+        <h1 id="loading-text">Fetching live games...</h1>
+      </div>
+      <div id="frame-container" class="four-container">
+        <iframe
+          class="frame"
+          id="one"
+          frameborder="0"
+          allowfullscreen
+          scrolling="yes"
+          allowtransparency
+        ></iframe>
+        <iframe
+          class="frame"
+          id="two"
+          frameborder="0"
+          allowfullscreen
+          scrolling="yes"
+          allowtransparency
+        ></iframe>
+        <iframe
+          class="frame"
+          id="three"
+          frameborder="0"
+          allowfullscreen
+          scrolling="yes"
+          allowtransparency
+        ></iframe>
+        <iframe
+          class="frame"
+          id="four"
+          frameborder="0"
+          allowfullscreen
+          scrolling="yes"
+          allowtransparency
+        ></iframe>
+      </div>
     </main>
 
     <script

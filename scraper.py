@@ -32,9 +32,9 @@ class Scraper:
 
         return games
 
-    def getStreamIDs(self, liveGames: list[tuple[str, str]]) -> dict[str, str]:
+    def getStreamIDs(self, liveGames: list[tuple[str, str]]) -> list[tuple[str, str]]:
         params = {"page": 1, "per_page": self.gamesPerPage}
-        streams = {}
+        streams = []
         done = False
 
         while not done:
@@ -48,7 +48,8 @@ class Scraper:
                     title = stream["title"]["rendered"]
                     for team1, team2 in liveGames:
                         if team1 in title and team2 in title:
-                            streams[title] = self.embeddingUrlBase + str(stream["id"])
+                            url = self.embeddingUrlBase + str(stream["id"])
+                            streams.append((title, url))
 
                 if len(streams) == len(liveGames) or len(respJson) < self.gamesPerPage:
                     done = True
@@ -61,7 +62,7 @@ class Scraper:
 
         return streams
 
-    def getAllStreams(self) -> dict[str, str]:
+    def getAllStreams(self) -> list[tuple[str, str]]:
         games = self.getLiveGames()
         return self.getStreamIDs(games)
 
