@@ -21,6 +21,21 @@ main {
 .frame {
   height: 100%;
   width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.frame iframe {
+  height: 100%;
+  width: 100%;
+}
+
+.frame h2 {
+  color: #ffffff;
+  position: absolute;
+  font-family: Helvetica;
 }
 
 #frame-container {
@@ -38,5 +53,5 @@ main {
 
 #loading-text {
   color: rgba(255, 255, 255, 0.6);
-  font-family: "Helvetica";
+  font-family: Helvetica;
 }

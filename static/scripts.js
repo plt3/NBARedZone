@@ -1,5 +1,6 @@
 let zoomedFrame = null;
 let streamsArr = null;
+const timeouts = [];
 
 const toggleKeybinds = {
   KeyJ: "one",
@@ -17,14 +18,18 @@ const rotateKeybinds = {
 async function getStreams() {
   const response = await fetch("/games");
   streamsArr = await response.json();
-  console.log(streamsArr);
-  const frames = document.getElementsByClassName("frame");
+  const frames = document.querySelectorAll(".frame iframe");
 
-  if (streamsArr.length >= 4) {
-    for (let index = 0; index < 4; index++) {
-      frames[index].src = streamsArr[index][1];
-      frames[index].dataset.index = index;
-    }
+  for (let index = 0; index < Math.min(streamsArr.length, 4); index++) {
+    frames[index].src = streamsArr[index][1];
+    frames[index].dataset.index = index;
+    const gameTitle = document.createElement("h2");
+    gameTitle.textContent = streamsArr[index][0];
+    document.querySelectorAll(".frame")[index].appendChild(gameTitle);
+    const timeout = setTimeout(() => {
+      removeTitle(index);
+    }, 3000);
+    timeouts.push(timeout);
   }
   // now show the names of the games
   document.getElementById("loading-screen").style.display = "none";
@@ -36,16 +41,16 @@ window.onload = getStreams;
 document.onkeydown = (e) => {
   switch (e.code) {
     case "Digit1":
-      document.getElementById("one").src += "";
+      document.querySelector("#one iframe").src += "";
       break;
     case "Digit2":
-      document.getElementById("two").src += "";
+      document.querySelector("#two iframe").src += "";
       break;
     case "Digit3":
-      document.getElementById("three").src += "";
+      document.querySelector("#three iframe").src += "";
       break;
     case "Digit4":
-      document.getElementById("four").src += "";
+      document.querySelector("#four iframe").src += "";
       break;
     case "KeyJ":
     case "KeyK":
@@ -63,6 +68,15 @@ document.onkeydown = (e) => {
       break;
   }
 };
+
+function removeTitle(index) {
+  clearTimeout(timeouts[index]);
+  const frame = document.querySelectorAll(".frame")[index];
+  const title = frame.querySelector("h2");
+  if (title !== null) {
+    frame.removeChild(title);
+  }
+}
 
 function toggleFullScreen(keyCode) {
   if (zoomedFrame === null) {
@@ -96,7 +110,25 @@ function toggleFullScreen(keyCode) {
 }
 
 function rotateStream(keyCode) {
-  const frame = document.getElementById(rotateKeybinds[keyCode]);
+  // TODO: change this. Should switch everything to be index-based,
+  // not hardcoded id-based
+  const bad = ["KeyA", "KeyS", "KeyD", "KeyF"];
+  removeTitle(bad.indexOf(keyCode));
+  const frame = document.querySelector(
+    "#" + rotateKeybinds[keyCode] + " iframe"
+  );
   frame.dataset.index = (Number(frame.dataset.index) + 1) % streamsArr.length;
   frame.src = streamsArr[frame.dataset.index][1];
+
+  // TODO: this should also be a function. Duplicated logic with what
+  // gets called on page load
+  const gameTitle = document.createElement("h2");
+  gameTitle.textContent = streamsArr[frame.dataset.index][0];
+  document
+    .querySelectorAll(".frame")
+    [bad.indexOf(keyCode)].appendChild(gameTitle);
+  const timeout = setTimeout(() => {
+    removeTitle(bad.indexOf(keyCode));
+  }, 3000);
+  timeouts[bad.indexOf(keyCode)] = timeout;
 }
