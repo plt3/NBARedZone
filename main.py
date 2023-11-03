@@ -16,33 +16,27 @@ templates = Jinja2Templates(directory="templates")
 def getStreams():
     # scraper = Scraper()
     # return scraper.getAllStreams()
-    # dummyData = [
-    #     (
-    #         "New Orleans Pelicans vs Detroit Pistons",
-    #         "https://bestsolaris.com/nbastreams/new-orleans-pelicans-vs-detroit-pistons/",
-    #     ),
-    #     (
-    #         "Philadelphia 76ers vs Toronto Raptors",
-    #         "https://bestsolaris.com/nbastreams/philadelphia-76ers-vs-toronto-raptors/",
-    #     ),
-    #     (
-    #         "Utah Jazz vs Orlando Magic",
-    #         "https://bestsolaris.com/nbastreams/utah-jazz-vs-orlando-magic/",
-    #     ),
-    #     (
-    #         "Phoenix Suns vs San Antonio Spurs",
-    #         "https://bestsolaris.com/nbastreams/phoenix-suns-vs-san-antonio-spurs-2/",
-    #     ),
-    #     (
-    #         "New York Rangers vs Carolina Hurricanes",
-    #         "https://bestsolaris.com/nhlstreams/new-york-rangers-vs-carolina-hurricanes/",
-    #     ),
-    # ]
     dummyData = [
         (
+            "New Orleans Pelicans vs Detroit Pistons",
+            "https://bestsolaris.com/nbastreams/new-orleans-pelicans-vs-detroit-pistons/",
+        ),
+        (
             "Philadelphia 76ers vs Toronto Raptors",
-            "https://bestsolaris.com/solaris.php?postid=44987",
-        )
+            "https://bestsolaris.com/nbastreams/philadelphia-76ers-vs-toronto-raptors/",
+        ),
+        (
+            "Utah Jazz vs Orlando Magic",
+            "https://bestsolaris.com/nbastreams/utah-jazz-vs-orlando-magic/",
+        ),
+        (
+            "Phoenix Suns vs San Antonio Spurs",
+            "https://bestsolaris.com/nbastreams/phoenix-suns-vs-san-antonio-spurs-2/",
+        ),
+        (
+            "New York Rangers vs Carolina Hurricanes",
+            "https://bestsolaris.com/nhlstreams/new-york-rangers-vs-carolina-hurricanes/",
+        ),
     ]
 
     return dummyData
