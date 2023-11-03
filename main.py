@@ -14,8 +14,8 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/games")
 def getStreams():
-    scraper = Scraper()
-    return scraper.getAllStreams()
+    # scraper = Scraper()
+    # return scraper.getAllStreams()
     # dummyData = [
     #     (
     #         "New Orleans Pelicans vs Detroit Pistons",
@@ -38,7 +38,14 @@ def getStreams():
     #         "https://bestsolaris.com/nhlstreams/new-york-rangers-vs-carolina-hurricanes/",
     #     ),
     # ]
-    # return dummyData
+    dummyData = [
+        (
+            "Philadelphia 76ers vs Toronto Raptors",
+            "https://bestsolaris.com/solaris.php?postid=44987",
+        )
+    ]
+
+    return dummyData
 
 
 @app.get("/", response_class=HTMLResponse)

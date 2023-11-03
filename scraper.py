@@ -1,7 +1,4 @@
-from datetime import timezone
-
 import requests
-from dateutil import parser
 from nba_api.live.nba.endpoints import scoreboard
 from requests.exceptions import HTTPError
 
@@ -17,18 +14,14 @@ class Scraper:
         self.gamesPerPage = 100
 
     def getLiveGames(self) -> list[tuple[str, str]]:
-        # TODO: check game clock field to actually get live games
-        # fields to check: gameClock, gameStatus, gameStatusText
         board = scoreboard.ScoreBoard()
         games = []
 
         for game in board.games.get_dict():
-            # gameTimeLTZ = (
-            #     parser.parse(game["gameTimeUTC"])
-            #     .replace(tzinfo=timezone.utc)
-            #     .astimezone(tz=None)
-            # )
-            games.append((game["homeTeam"]["teamName"], game["awayTeam"]["teamName"]))
+            if game["gameClock"] != "":
+                games.append(
+                    (game["homeTeam"]["teamName"], game["awayTeam"]["teamName"])
+                )
 
         return games
 

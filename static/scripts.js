@@ -23,9 +23,8 @@ async function getStreams() {
   for (let index = 0; index < Math.min(streamsArr.length, 4); index++) {
     frames[index].src = streamsArr[index][1];
     frames[index].dataset.index = index;
-    const gameTitle = document.createElement("h2");
-    gameTitle.textContent = streamsArr[index][0];
-    document.querySelectorAll(".frame")[index].appendChild(gameTitle);
+    const gameTitle = document.querySelectorAll(".frame h2");
+    gameTitle[index].textContent = streamsArr[index][0];
     const timeout = setTimeout(() => {
       removeTitle(index);
     }, 3000);
@@ -73,9 +72,10 @@ function removeTitle(index) {
   clearTimeout(timeouts[index]);
   const frame = document.querySelectorAll(".frame")[index];
   const title = frame.querySelector("h2");
-  if (title !== null) {
-    frame.removeChild(title);
-  }
+  title.style.opacity = 0;
+  // if (title !== null) {
+  //   frame.removeChild(title);
+  // }
 }
 
 function toggleFullScreen(keyCode) {
@@ -122,11 +122,11 @@ function rotateStream(keyCode) {
 
   // TODO: this should also be a function. Duplicated logic with what
   // gets called on page load
-  const gameTitle = document.createElement("h2");
+  const gameTitle = document.querySelector(
+    "#" + rotateKeybinds[keyCode] + " h2"
+  );
   gameTitle.textContent = streamsArr[frame.dataset.index][0];
-  document
-    .querySelectorAll(".frame")
-    [bad.indexOf(keyCode)].appendChild(gameTitle);
+  gameTitle.style.opacity = 1;
   const timeout = setTimeout(() => {
     removeTitle(bad.indexOf(keyCode));
   }, 3000);

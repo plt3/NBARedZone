@@ -36,6 +36,8 @@ main {
   color: #ffffff;
   position: absolute;
   font-family: Helvetica;
+  opacity: 1;
+  transition: opacity 1s;
 }
 
 #frame-container {
