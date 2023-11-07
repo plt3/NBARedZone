@@ -8,17 +8,29 @@ main {
   height: 100%;
 }
 
-.four-container {
-  grid-template-columns: auto auto;
-  grid-template-rows: auto auto;
+iframe {
+  height: 100%;
+  width: 100%;
 }
 
-.fs-container {
+.container-1 {
   grid-template-columns: auto;
   grid-template-rows: auto;
 }
 
+.container-2 {
+  grid-template-columns: auto auto;
+  grid-template-rows: auto;
+}
+
+.container-3,
+.container-4 {
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+}
+
 .frame {
+  /* TODO: play with calc(100% - 10px) and vars to center things nicely */
   height: 100%;
   width: 100%;
   position: relative;
@@ -27,9 +39,8 @@ main {
   align-items: center;
 }
 
-.frame iframe {
-  height: 100%;
-  width: 100%;
+.container-2 iframe {
+  height: 50%;
 }
 
 .frame h2 {
@@ -44,6 +55,17 @@ main {
   height: 100%;
   display: none;
   grid-gap: 10px;
+}
+
+.container-3 #third-stream {
+  grid-column: 1 / span 2;
+  width: 50%;
+  margin: auto;
+}
+
+.container-1 #third-stream {
+  grid-column: 1;
+  width: 100%;
 }
 
 #loading-screen {
