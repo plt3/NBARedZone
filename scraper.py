@@ -17,17 +17,18 @@ class Scraper:
         board = scoreboard.ScoreBoard()
         games = []
 
-        for game in board.games.get_dict():
-            if game["gameClock"] != "":
-                games.append(
-                    (game["homeTeam"]["teamName"], game["awayTeam"]["teamName"])
-                )
+        if board.games is not None:
+            for game in board.games.get_dict():
+                if game["gameClock"] != "":
+                    games.append(
+                        (game["homeTeam"]["teamName"], game["awayTeam"]["teamName"])
+                    )
 
         return games
 
-    def getStreamIDs(
-        self, liveGames: list[tuple[str, str]], fullPages: bool = False
-    ) -> list[tuple[str, str]]:
+    def getStreamIDs(self, liveGames: list[tuple[str, str]]) -> list[tuple[str, str]]:
+        if len(liveGames) == 0:
+            return []
         params = {"page": 1, "per_page": self.gamesPerPage}
         streams = []
         done = False
@@ -43,11 +44,15 @@ class Scraper:
                     title = stream["title"]["rendered"]
                     for team1, team2 in liveGames:
                         if team1 in title and team2 in title:
-                            if fullPages:
-                                url = stream["link"]
-                            else:
-                                url = self.embeddingUrlBase + str(stream["id"])
-                            streams.append((title, url))
+                            streamUrl = stream["link"]
+                            embeddingUrl = self.embeddingUrlBase + str(stream["id"])
+                            streams.append(
+                                {
+                                    "title": title,
+                                    "stream_url": streamUrl,
+                                    "embedding_url": embeddingUrl,
+                                }
+                            )
 
                 if len(streams) == len(liveGames) or len(respJson) < self.gamesPerPage:
                     done = True
@@ -60,9 +65,9 @@ class Scraper:
 
         return streams
 
-    def getAllStreams(self, fullPages: bool = False) -> list[tuple[str, str]]:
+    def getAllStreams(self) -> list[tuple[str, str]]:
         games = self.getLiveGames()
-        return self.getStreamIDs(games, fullPages)
+        return self.getStreamIDs(games)
 
 
 if __name__ == "__main__":

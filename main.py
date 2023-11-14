@@ -1,5 +1,3 @@
-from typing import Union
-
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -15,40 +13,22 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/games")
-def getStreams(fullPages: Union[str, None] = None):
-    scraper = Scraper()
-    return scraper.getAllStreams(fullPages=fullPages == "1")
-    # dummyData = [
-    #     (
-    #         "New Orleans Pelicans vs Detroit Pistons",
-    #         "https://bestsolaris.com/nbastreams/new-orleans-pelicans-vs-detroit-pistons/",
-    #     ),
-    #     (
-    #         "Philadelphia 76ers vs Toronto Raptors",
-    #         "https://bestsolaris.com/nbastreams/philadelphia-76ers-vs-toronto-raptors/",
-    #     ),
-    #     (
-    #         "New Orleans Pelicans vs Detroit Pistons",
-    #         "https://bestsolaris.com/solaris.php?postid=43221",
-    #     ),
-    #     (
-    #         "Philadelphia 76ers vs Toronto Raptors",
-    #         "https://bestsolaris.com/solaris.php?postid=43221",
-    #     ),
-    #     (
-    #         "Utah Jazz vs Orlando Magic",
-    #         "https://bestsolaris.com/solaris.php?postid=43221",
-    #     ),
-    #     (
-    #         "Phoenix Suns vs San Antonio Spurs",
-    #         "https://bestsolaris.com/nbastreams/phoenix-suns-vs-san-antonio-spurs-2/",
-    #     ),
-    #     (
-    #         "New York Rangers vs Carolina Hurricanes",
-    #         "https://bestsolaris.com/nhlstreams/new-york-rangers-vs-carolina-hurricanes/",
-    #     ),
-    # ]
-    # return dummyData
+def getStreams():
+    # scraper = Scraper()
+    # return scraper.getAllStreams()
+    dummyData = [
+        {
+            "title": "Toronto Raptors vs Washington Wizards",
+            "stream_url": "https://bestsolaris.com/nbastreams/toronto-raptors-vs-washington-wizards/",
+            "embedding_url": "https://bestsolaris.com/solaris.php?postid=45958",
+        },
+        {
+            "title": "Sacramento Kings vs Cleveland Cavaliers",
+            "stream_url": "https://bestsolaris.com/nbastreams/sacramento-kings-vs-cleveland-cavaliers/",
+            "embedding_url": "https://bestsolaris.com/solaris.php?postid=45960",
+        },
+    ]
+    return dummyData
 
 
 @app.get("/", response_class=HTMLResponse)

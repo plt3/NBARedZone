@@ -4,10 +4,12 @@ const reloadKeybinds = ["Digit1", "Digit2", "Digit3", "Digit4"];
 const toggleKeybinds = ["KeyJ", "KeyK", "KeyL", "Semicolon"];
 const rotateKeybinds = ["KeyA", "KeyS", "KeyD", "KeyF"];
 const fullScreenKeybind = "KeyY";
+const urlTypeKeybind = "KeyO";
 
 // globals
 let zoomedFrameId = null;
 let streamsArr = null;
+let urlKey = "embedding_url";
 const timeouts = [];
 const frameContainer = document.getElementById("frame-container");
 let frameContainerClass = null;
@@ -25,6 +27,8 @@ document.onkeydown = (e) => {
     rotateStream(code);
   } else if (code === fullScreenKeybind) {
     document.documentElement.requestFullscreen();
+  } else if (code === urlTypeKeybind) {
+    toggleUrlType();
   }
 };
 
@@ -91,17 +95,30 @@ function rotateStream(keyCode) {
 
   frame.dataset.gameIndex =
     (Number(frame.dataset.gameIndex) + 1) % streamsArr.length;
-  frame.querySelector("iframe").src = streamsArr[frame.dataset.gameIndex][1];
+  frame.querySelector("iframe").src =
+    streamsArr[frame.dataset.gameIndex][urlKey];
 
   // change title of stream and display it
   clearTimeout(timeouts[index]);
   const title = frame.querySelector("h2");
-  title.textContent = streamsArr[frame.dataset.gameIndex][0];
+  title.textContent = streamsArr[frame.dataset.gameIndex].title;
   title.style.opacity = 1;
   const timeout = setTimeout(() => {
     removeTitle(index);
   }, titleTimeout);
   timeouts[index] = timeout;
+}
+
+function toggleUrlType() {
+  if (urlKey === "embedding_url") {
+    urlKey = "stream_url";
+  } else {
+    urlKey = "embedding_url";
+  }
+  for (const frame of frames) {
+    frame.querySelector("iframe").src =
+      streamsArr[frame.dataset.gameIndex][urlKey];
+  }
 }
 
 function createFrame(url, gameIndex, title) {
@@ -124,17 +141,12 @@ function createFrame(url, gameIndex, title) {
 
 async function getStreams() {
   // get stream links and display them. To be called on page load
-  const params = new URLSearchParams(window.location.search);
-  let queryPath = "/games";
-  if (params.get("fullPages") === "1") {
-    queryPath += "?" + params;
-  }
-  const response = await fetch(queryPath);
+  const response = await fetch("/games");
   streamsArr = await response.json();
 
   for (let index = 0; index < Math.min(streamsArr.length, 4); index++) {
     const stream = streamsArr[index];
-    createFrame(stream[1], index, stream[0]);
+    createFrame(stream[urlKey], index, stream.title);
     const timeout = setTimeout(() => {
       removeTitle(index);
     }, titleTimeout);
@@ -143,6 +155,11 @@ async function getStreams() {
 
   frames = document.getElementsByClassName("frame");
 
+  if (streamsArr.length === 0) {
+    document.getElementById("loading-text").textContent = "No games found.";
+    return;
+  }
+
   document.getElementById("loading-screen").style.display = "none";
   frameContainerClass =
     "container-" + Math.min(streamsArr.length, 4).toString();
@@ -150,7 +167,6 @@ async function getStreams() {
   frameContainer.className = frameContainerClass;
 
   if (streamsArr.length === 3) {
-    // TODO: deal with this when entering full screen
     frames[2].id = "third-stream";
   }
 }
