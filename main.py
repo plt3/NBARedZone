@@ -14,8 +14,8 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/games")
 def getStreams():
-    # scraper = Scraper()
-    # return scraper.getAllStreams()
+    scraper = Scraper()
+    return scraper.getAllStreams()
     dummyData = [
         {
             "title": "Toronto Raptors vs Washington Wizards",
