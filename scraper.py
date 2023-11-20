@@ -13,11 +13,13 @@ class Scraper:
         self,
         bsApiUrl: str = "https://bestsolaris.com/wp-json/wp/v2/posts",
         embeddingUrlBase: str = "https://bestsolaris.com/solaris.php?postid=",
-        useCurl: bool = False,
+        useCurl: bool = True,
     ):
         self.bsApiUrl = bsApiUrl
         self.embeddingUrlBase = embeddingUrlBase
         self.gamesPerPage = 100
+
+        # mock requests.get with custom request method which uses cURL instead
         if useCurl:
             print("Using cURL instead of requests library")
             nba_api.library.http.requests.get = Scraper.mockedGet
@@ -51,10 +53,12 @@ class Scraper:
         params = kwargs.get("params")
         if params:
             url += "?" + urlencode(params)
+
         command = ["curl", url]
         process = subprocess.run(command, capture_output=True, text=True)
         text = process.stdout
         statusCode = 200
+
         try:
             json.loads(text)
         except json.decoder.JSONDecodeError:
