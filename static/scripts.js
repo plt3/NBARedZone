@@ -1,12 +1,23 @@
-// config values
-const titleTimeout = 3000;
-const reloadKeybinds = ["Digit1", "Digit2", "Digit3", "Digit4"];
-const toggleKeybinds = ["KeyJ", "KeyK", "KeyL", "Semicolon"];
-const rotateKeybinds = ["KeyA", "KeyS", "KeyD", "KeyF"];
-const fullScreenKeybind = "KeyY";
-const urlTypeKeybind = "KeyO";
+import {
+  actionKeybinds,
+  reloadKeybind,
+  toggleKeybind,
+  rotateKeybind,
+  fullScreenKeybind,
+  urlTypeKeybind,
+} from "./keybinds.js";
 
-// globals
+/* GLOBALS */
+
+// map action keybind to function which should perform that action
+const keybindFunctions = {
+  [reloadKeybind]: reloadFrame,
+  [toggleKeybind]: toggleStreamFullScreen,
+  [rotateKeybind]: rotateStream,
+};
+// amount of milliseconds to display title of game in each frame
+const titleTimeout = 3000;
+let currentAction = null;
 let zoomedFrameId = null;
 let streamsArr = null;
 let urlKey = "embedding_url";
@@ -19,14 +30,15 @@ document.onkeydown = (e) => {
   // handle all keypresses
   const code = e.code;
 
-  if (reloadKeybinds.includes(code)) {
-    reloadFrame(code);
-  } else if (toggleKeybinds.includes(code)) {
-    toggleFullScreen(code);
-  } else if (rotateKeybinds.includes(code)) {
-    rotateStream(code);
+  if (Object.keys(keybindFunctions).includes(code)) {
+    currentAction = code;
+  } else if (currentAction !== null && actionKeybinds.includes(code)) {
+    const index = actionKeybinds.indexOf(code);
+    if (index !== -1 && index < frames.length) {
+      keybindFunctions[currentAction](index);
+    }
   } else if (code === fullScreenKeybind) {
-    document.documentElement.requestFullscreen();
+    toggleFullScreen();
   } else if (code === urlTypeKeybind) {
     toggleUrlType();
   }
@@ -38,59 +50,46 @@ function removeTitle(index) {
   title.style.opacity = 0;
 }
 
-function reloadFrame(keyCode) {
+function reloadFrame(index) {
   // reload given frame, specified by reloadKeybinds
-  const index = reloadKeybinds.indexOf(keyCode);
-  if (index === -1 || index >= frames.length) {
-    return;
-  }
   const iframe = frames[index].querySelector("iframe");
   iframe.src += "";
 }
 
-function toggleFullScreen(keyCode) {
+function toggleStreamFullScreen(index) {
   // toggle given frame, specified by toggleKeybinds
-  const index = toggleKeybinds.indexOf(keyCode);
-  if (index === -1 || index >= frames.length) {
-    return;
-  }
   if (zoomedFrameId === null) {
     // no frame is zoomed, so zoom chosen frame
     frameContainer.className = "container-1";
-    for (let index = 0; index < frames.length; index++) {
-      if (toggleKeybinds[index] === keyCode) {
-        zoomedFrameId = index;
+    for (let i = 0; i < frames.length; i++) {
+      if (i === index) {
+        zoomedFrameId = i;
       } else {
-        frames[index].style.display = "none";
+        frames[i].style.display = "none";
       }
     }
   } else {
-    const keyId = toggleKeybinds.indexOf(keyCode);
-    if (zoomedFrameId === keyId) {
+    if (zoomedFrameId === index) {
       // chosen frame is zoomed, so unzoom it
       frameContainer.className = frameContainerClass;
 
-      for (let index = 0; index < frames.length; index++) {
-        if (index !== keyId) {
-          frames[index].style.display = "";
+      for (let i = 0; i < frames.length; i++) {
+        if (i !== index) {
+          frames[i].style.display = "";
         }
       }
       zoomedFrameId = null;
     } else {
       // different frame is zoomed, so unzoom it and zoom the chosen one
       frames[zoomedFrameId].style.display = "none";
-      frames[keyId].style.display = "";
-      zoomedFrameId = keyId;
+      frames[index].style.display = "";
+      zoomedFrameId = index;
     }
   }
 }
 
-function rotateStream(keyCode) {
+function rotateStream(index) {
   // rotate stream of given frame, specified by rotateKeybinds
-  const index = rotateKeybinds.indexOf(keyCode);
-  if (index === -1 || index >= frames.length) {
-    return;
-  }
   const frame = frames[index];
 
   frame.dataset.gameIndex =
@@ -107,6 +106,14 @@ function rotateStream(keyCode) {
     removeTitle(index);
   }, titleTimeout);
   timeouts[index] = timeout;
+}
+
+function toggleFullScreen() {
+  if (document.fullscreenElement !== null) {
+    document.exitFullscreen();
+  } else {
+    document.documentElement.requestFullscreen();
+  }
 }
 
 function toggleUrlType() {
