@@ -45,7 +45,7 @@ document.onkeydown = async (e) => {
     toggleFullScreen();
   } else if (code === urlTypeKeybind) {
     toggleUrlType();
-  } else if (code === scoresKeybind) {
+  } else if (code === scoresKeybind && frames.length > 0) {
     await toggleScoresPopup();
   }
 };
