@@ -2,10 +2,6 @@
 
 > Watch bestsolaris.com NBA games RedZone-style
 
-## What does this do?
-
-This tool was built to automate the process of clipping individual highlights from large amounts of game footage when making (specifically ultimate frisbee) season highlight reels. Having hundreds of clips named appropriately and organized into subdirectories makes it easier to import the best ones into editing software later on. The use case this was written for is a team that posts all of its game footage from each tournament on YouTube and keeps timestamps of highlights from each game. clip-for me will then download the YouTube videos and place all the highlights in individual files in subdirectories arranged by game and by tournament. However, this functionality can be used for any other sport or situation where one needs to clip many small moments from large videos and save them into their own files.
-
 ## Installation and Running:
 
 NOTE: only tested on macOS
@@ -58,7 +54,7 @@ NOTE: only tested on macOS
 ## Limitations:
 
 - all this webpage does is embed streams from bestsolaris.com. This means that I have no
-  control over the stream qualities, and they often buffer or just don't work. Make use
+  control over the quality of the streams, and they often buffer or just don't work. Make use
   of the reload keybind if a stream buffers or toggle between the embedded stream view
   and full page stream view if one is not working.
 - since the embedded streams are from a different domain, the webpage can't control
