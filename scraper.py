@@ -1,12 +1,11 @@
-import json
-import subprocess
 from typing import Union
-from urllib.parse import urlencode
 
 import nba_api
 import requests
 from nba_api.live.nba.endpoints import scoreboard
 from requests.exceptions import HTTPError
+
+from utils import mockedGet
 
 
 class Scraper:
@@ -14,7 +13,7 @@ class Scraper:
         self,
         bsApiUrl: str = "https://bestsolaris.com/wp-json/wp/v2/posts",
         embeddingUrlBase: str = "https://bestsolaris.com/solaris.php?postid=",
-        useCurl: bool = True,
+        useCurl: bool = False,
     ):
         self.bsApiUrl = bsApiUrl
         self.embeddingUrlBase = embeddingUrlBase
@@ -23,49 +22,8 @@ class Scraper:
         # mock requests.get with custom request method which uses cURL instead
         if useCurl:
             print("Using cURL instead of requests library")
-            nba_api.library.http.requests.get = Scraper.mockedGet
-            requests.get = Scraper.mockedGet
-
-    class MockedResponse:
-        """Class meant to mock requests.Response class"""
-
-        def __init__(self, url, statusCode, text):
-            self.url = url
-            self.status_code = statusCode
-            self.text = text
-
-        def raise_for_status(self):
-            if self.status_code >= 400:
-                raise HTTPError(f"Status code {self.status_code} for url: {self.url}")
-
-        def json(self):
-            try:
-                return json.loads(self.text)
-            except json.decoder.JSONDecodeError:
-                raise requests.exceptions.JSONDecodeError
-
-    @staticmethod
-    def mockedGet(*args, **kwargs):
-        """For whatever reason requests takes multiple minutes on some requests
-        when on my home network. Mock requests.get with this method which uses
-        cURL from the command line
-        """
-        url = kwargs.get("url") or args[0]
-        params = kwargs.get("params")
-        if params:
-            url += "?" + urlencode(params)
-
-        command = ["curl", url]
-        process = subprocess.run(command, capture_output=True, text=True)
-        text = process.stdout
-        statusCode = 200
-
-        try:
-            json.loads(text)
-        except json.decoder.JSONDecodeError:
-            statusCode = 400
-
-        return Scraper.MockedResponse(url, statusCode, text)
+            nba_api.library.http.requests.get = mockedGet
+            requests.get = mockedGet
 
     def getLiveGames(self, sort: bool = False) -> list[dict[str, Union[str, int]]]:
         board = scoreboard.ScoreBoard()
@@ -83,13 +41,14 @@ class Scraper:
                     }
                     games.append(gameDict)
 
+        # sort by point differential to get closest games first
         if sort:
             games.sort(key=lambda d: abs(d["home_score"] - d["away_score"]))
 
         return games
 
     def getStreamIDs(
-        self, liveGames: list[dict[str, Union[str, int]]]
+        self, liveGames: list[dict[str, Union[str, int]]], sort: bool = False
     ) -> list[dict[str, str]]:
         if len(liveGames) == 0:
             return []
@@ -115,6 +74,9 @@ class Scraper:
                                     "title": title,
                                     "stream_url": streamUrl,
                                     "embedding_url": embeddingUrl,
+                                    "point_diff": abs(
+                                        game["home_score"] - game["away_score"]
+                                    ),
                                 }
                             )
                             del liveGames[index]
@@ -129,14 +91,20 @@ class Scraper:
                 # results, so stop if that happens
                 done = True
 
+        if sort:
+            streams.sort(key=lambda s: s["point_diff"])
+
+        for stream in streams:
+            del stream["point_diff"]
+
         return streams
 
-    def getAllStreams(self) -> list[dict[str, str]]:
+    def getAllStreams(self, sort: bool = True) -> list[dict[str, str]]:
         games = self.getLiveGames()
-        return self.getStreamIDs(games)
+        return self.getStreamIDs(games, sort=sort)
 
 
 if __name__ == "__main__":
-    scr = Scraper()
+    scr = Scraper(useCurl=True)
     streams = scr.getAllStreams()
     __import__("pprint").pprint(streams)

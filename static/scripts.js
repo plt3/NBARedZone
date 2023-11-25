@@ -150,6 +150,10 @@ async function toggleScoresPopup() {
       scoresPopup.appendChild(line);
     }
 
+    scoresPopup.querySelector(
+      "h2"
+    ).textContent = `Live Games (${scoresArr.length}):`;
+
     popupFrame.style.display = "flex";
   }
 

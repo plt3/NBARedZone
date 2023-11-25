@@ -1,5 +1,6 @@
 .DS_Store
 
-ugh.html
 venv
 tsconfig.json
+
+test.py
