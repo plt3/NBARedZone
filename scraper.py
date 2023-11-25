@@ -1,5 +1,6 @@
 import json
 import subprocess
+from typing import Union
 from urllib.parse import urlencode
 
 import nba_api
@@ -66,20 +67,30 @@ class Scraper:
 
         return Scraper.MockedResponse(url, statusCode, text)
 
-    def getLiveGames(self) -> list[tuple[str, str]]:
+    def getLiveGames(self, sort: bool = False) -> list[dict[str, Union[str, int]]]:
         board = scoreboard.ScoreBoard()
         games = []
 
         if board.games is not None:
             for game in board.games.get_dict():
                 if game["gameClock"] != "":
-                    games.append(
-                        (game["homeTeam"]["teamName"], game["awayTeam"]["teamName"])
-                    )
+                    gameDict = {
+                        "home": game["homeTeam"]["teamName"],
+                        "away": game["awayTeam"]["teamName"],
+                        "home_score": game["homeTeam"]["score"],
+                        "away_score": game["awayTeam"]["score"],
+                        "time": game["gameStatusText"],
+                    }
+                    games.append(gameDict)
+
+        if sort:
+            games.sort(key=lambda d: abs(d["home_score"] - d["away_score"]))
 
         return games
 
-    def getStreamIDs(self, liveGames: list[tuple[str, str]]) -> list[dict[str, str]]:
+    def getStreamIDs(
+        self, liveGames: list[dict[str, Union[str, int]]]
+    ) -> list[dict[str, str]]:
         if len(liveGames) == 0:
             return []
         params = {"page": 1, "per_page": self.gamesPerPage}
@@ -95,8 +106,8 @@ class Scraper:
 
                 for stream in respJson:
                     title = stream["title"]["rendered"]
-                    for index, (team1, team2) in enumerate(liveGames):
-                        if team1 in title and team2 in title:
+                    for index, game in enumerate(liveGames):
+                        if game["home"] in title and game["away"] in title:
                             streamUrl = stream["link"]
                             embeddingUrl = self.embeddingUrlBase + str(stream["id"])
                             streams.append(

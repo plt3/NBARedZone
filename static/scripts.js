@@ -5,6 +5,7 @@ import {
   rotateKeybind,
   fullScreenKeybind,
   urlTypeKeybind,
+  scoresKeybind,
 } from "./keybinds.js";
 
 /* GLOBALS */
@@ -19,14 +20,17 @@ const keybindFunctions = {
 const titleTimeout = 3000;
 let currentAction = null;
 let zoomedFrameId = null;
+let scoresDisplayed = false;
 let streamsArr = null;
 let urlKey = "embedding_url";
 const timeouts = [];
 const frameContainer = document.getElementById("frame-container");
+const popupFrame = document.getElementById("popup-frame");
+const scoresPopup = document.getElementById("scores-popup");
 let frameContainerClass = null;
 let frames = null;
 
-document.onkeydown = (e) => {
+document.onkeydown = async (e) => {
   // handle all keypresses
   const code = e.code;
 
@@ -41,6 +45,8 @@ document.onkeydown = (e) => {
     toggleFullScreen();
   } else if (code === urlTypeKeybind) {
     toggleUrlType();
+  } else if (code === scoresKeybind) {
+    await toggleScoresPopup();
   }
 };
 
@@ -128,6 +134,28 @@ function toggleUrlType() {
   }
 }
 
+async function toggleScoresPopup() {
+  if (scoresDisplayed) {
+    popupFrame.style.display = "none";
+  } else {
+    scoresPopup.querySelectorAll("p").forEach((line) => line.remove());
+
+    const response = await fetch("/scores");
+    const scoresArr = await response.json();
+
+    for (const obj of scoresArr) {
+      const text = `${obj.home} vs. ${obj.away}: ${obj.home_score}-${obj.away_score}, ${obj.time}`;
+      const line = document.createElement("p");
+      line.textContent = text;
+      scoresPopup.appendChild(line);
+    }
+
+    popupFrame.style.display = "flex";
+  }
+
+  scoresDisplayed = !scoresDisplayed;
+}
+
 function createFrame(url, gameIndex, title) {
   // create stream frames and add to DOM. To be called by getStreams on page load
   const frameDiv = document.createElement("div");
@@ -148,7 +176,7 @@ function createFrame(url, gameIndex, title) {
 
 async function getStreams() {
   // get stream links and display them. To be called on page load
-  const response = await fetch("/games");
+  const response = await fetch("/streams");
   streamsArr = await response.json();
 
   for (let index = 0; index < Math.min(streamsArr.length, 4); index++) {

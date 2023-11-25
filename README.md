@@ -1,3 +1,3 @@
 ## TODO:
 
-- more intuitive keybinds? Like r/f/s + 1/2/3/4
+- score popup to see which games are closest? Sorted by point diff

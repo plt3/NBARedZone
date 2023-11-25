@@ -2,10 +2,12 @@ html,
 body {
   height: 100%;
   background-color: #18191a;
+  font-family: Helvetica;
 }
 
 main {
   height: 100%;
+  position: relative;
 }
 
 iframe {
@@ -46,7 +48,6 @@ iframe {
 .frame h2 {
   color: #ffffff;
   position: absolute;
-  font-family: Helvetica;
   opacity: 1;
   transition: opacity 1s;
 }
@@ -77,5 +78,24 @@ iframe {
 
 #loading-text {
   color: rgba(255, 255, 255, 0.6);
-  font-family: Helvetica;
+}
+
+#popup-frame {
+  position: absolute;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+#scores-popup {
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 20px;
 }

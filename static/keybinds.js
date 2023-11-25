@@ -13,3 +13,5 @@ export const rotateKeybind = "Semicolon";
 export const fullScreenKeybind = "KeyY";
 // toggle type of URL for streams
 export const urlTypeKeybind = "KeyF";
+// toggle game scores popup
+export const scoresKeybind = "KeyU";
