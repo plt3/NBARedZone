@@ -2,7 +2,9 @@
 
 > Watch bestsolaris.com NBA games RedZone-style
 
-## Installation and Running:
+<img width="1440" alt="NBARedZone" src="https://github.com/plt3/NBARedZone/assets/65266160/b90dfd9c-eaff-49e4-b302-d78bbec7cfac">
+
+## Installation:
 
 NOTE: only tested on macOS
 
