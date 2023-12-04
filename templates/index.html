@@ -9,13 +9,30 @@
   </head>
   <body>
     <main>
-      <div id="loading-screen">
-        <h1 id="loading-text">Fetching live games...</h1>
+      <div id="header">
+        <div id="left-header">
+          <p>Press ? for help</p>
+          <button id="scroll-button">Scroll to streams</button>
+        </div>
+        <div id="title-box">
+          <h1>NBA RedZone</h1>
+          <h3>Watch all NBA games currently live for free</h3>
+        </div>
+        <div id="right-header">
+          <p>
+            Made with <span style="color: #e25555">&hearts;</span> by Paul
+            Taylor
+          </p>
+          <a target="_blank" href="https://github.com/plt3/NBARedZone"
+            >GitHub</a
+          >
+        </div>
       </div>
       <div id="popup-frame">
-        <div id="scores-popup">
-          <h2></h2>
-        </div>
+        <div id="popup"></div>
+      </div>
+      <div id="loading-screen">
+        <h1 id="loading-text">Fetching live games...</h1>
       </div>
       <div id="frame-container"></div>
     </main>

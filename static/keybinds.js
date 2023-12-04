@@ -1,17 +1,21 @@
 /* KEYBINDS. SET ACCORDINGLY */
 
 // keys to perform action on each of the 4 frames
-export const actionKeybinds = ["Digit1", "Digit2", "Digit3", "Digit4"];
+export const actionKeybinds = ["1", "2", "3", "4"];
 // prefix key to perform reload action
-export const reloadKeybind = "KeyR";
+export const reloadKeybind = "r";
 // prefix key to perform stream fullscreen toggle action
-export const toggleKeybind = "KeyT";
+export const toggleKeybind = "t";
 // prefix key to perform stream rotation action
-export const rotateKeybind = "KeyS";
+export const rotateKeybind = "s";
 
 // toggle website fullscreen
-export const fullScreenKeybind = "KeyF";
+export const fullScreenKeybind = "f";
 // toggle type of URL for streams
-export const urlTypeKeybind = "KeyU";
+export const urlTypeKeybind = "u";
 // toggle game scores popup
-export const scoresKeybind = "KeyG";
+export const scoresKeybind = "g";
+// scroll down past header to streams
+export const scrollKeybind = "d";
+// toggle help popup
+export const helpKeybind = "?";

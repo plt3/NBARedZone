@@ -6,7 +6,10 @@ import {
   fullScreenKeybind,
   urlTypeKeybind,
   scoresKeybind,
+  scrollKeybind,
+  helpKeybind,
 } from "./keybinds.js";
+import { showHelpMessage } from "./help.js";
 
 /* GLOBALS */
 
@@ -20,33 +23,37 @@ const keybindFunctions = {
 const titleTimeout = 3000;
 let currentAction = null;
 let zoomedFrameId = null;
-let scoresDisplayed = false;
+let popupType = null;
 let streamsArr = null;
 let urlKey = "embedding_url";
 const timeouts = [];
 const frameContainer = document.getElementById("frame-container");
 const popupFrame = document.getElementById("popup-frame");
-const scoresPopup = document.getElementById("scores-popup");
+const popup = document.getElementById("popup");
 let frameContainerClass = null;
 let frames = null;
 
 document.onkeydown = async (e) => {
   // handle all keypresses
-  const code = e.code;
+  const key = e.key;
 
-  if (Object.keys(keybindFunctions).includes(code)) {
-    currentAction = code;
-  } else if (currentAction !== null && actionKeybinds.includes(code)) {
-    const index = actionKeybinds.indexOf(code);
+  if (Object.keys(keybindFunctions).includes(key)) {
+    currentAction = key;
+  } else if (currentAction !== null && actionKeybinds.includes(key)) {
+    const index = actionKeybinds.indexOf(key);
     if (index !== -1 && index < frames.length) {
       keybindFunctions[currentAction](index);
     }
-  } else if (code === fullScreenKeybind) {
+  } else if (key === fullScreenKeybind) {
     toggleFullScreen();
-  } else if (code === urlTypeKeybind) {
+  } else if (key === urlTypeKeybind) {
     toggleUrlType();
-  } else if (code === scoresKeybind && frames.length > 0) {
-    await toggleScoresPopup();
+  } else if (key === scoresKeybind && frames.length > 0) {
+    await togglePopup(true);
+  } else if (key === helpKeybind) {
+    await togglePopup(false);
+  } else if (key === scrollKeybind) {
+    scrollToStreams();
   }
 };
 
@@ -134,29 +141,49 @@ function toggleUrlType() {
   }
 }
 
-async function toggleScoresPopup() {
-  if (scoresDisplayed) {
+async function togglePopup(showScores) {
+  if (
+    (popupType === "scores" && showScores) ||
+    (popupType == "help" && !showScores)
+  ) {
     popupFrame.style.display = "none";
+    popupType = null;
   } else {
-    scoresPopup.querySelectorAll("p").forEach((line) => line.remove());
+    popup.querySelectorAll("*").forEach((elem) => elem.remove());
+    const popupTitle = document.createElement("h2");
+    popup.appendChild(popupTitle);
 
-    const response = await fetch("/scores");
-    const scoresArr = await response.json();
+    if (showScores) {
+      const response = await fetch("/scores");
+      const scoresArr = await response.json();
 
-    for (const obj of scoresArr) {
-      const text = `${obj.home} vs. ${obj.away}: ${obj.home_score}-${obj.away_score}, ${obj.time}`;
-      const line = document.createElement("p");
-      line.textContent = text;
-      scoresPopup.appendChild(line);
+      popupTitle.textContent = `Live Games (${scoresArr.length}):`;
+
+      for (const obj of scoresArr) {
+        const text = `${obj.home} vs. ${obj.away}: ${obj.home_score}-${obj.away_score}, ${obj.time}`;
+        const line = document.createElement("p");
+        line.textContent = text;
+        popup.appendChild(line);
+      }
+      popupType = "scores";
+    } else {
+      showHelpMessage(popup, popupTitle);
+
+      popupType = "help";
     }
-
-    scoresPopup.querySelector("h2").textContent =
-      `Live Games (${scoresArr.length}):`;
 
     popupFrame.style.display = "flex";
   }
+}
 
-  scoresDisplayed = !scoresDisplayed;
+function scrollToStreams() {
+  if (frames !== null && frames.length > 0) {
+    frameContainer.scrollIntoView({ behavior: "smooth" });
+  } else {
+    document
+      .getElementById("loading-screen")
+      .scrollIntoView({ behavior: "smooth" });
+  }
 }
 
 function createFrame(url, gameIndex, title) {
@@ -209,4 +236,14 @@ async function getStreams() {
   }
 }
 
-window.onload = getStreams;
+window.onload = async () => {
+  const scrollButton = document.getElementById("scroll-button");
+  scrollButton.onclick = scrollToStreams;
+  await getStreams();
+
+  // bring focus back to main page after clicking inside iframe
+  // (so that keybinds are registered again)
+  window.onblur = () => {
+    setTimeout(window.focus, 100);
+  };
+};
