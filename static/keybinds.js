@@ -15,3 +15,5 @@ export const fullScreenKeybind = "KeyF";
 export const urlTypeKeybind = "KeyU";
 // toggle game scores popup
 export const scoresKeybind = "KeyG";
+// scroll down past header to streams
+export const scrollKeybind = "KeyD";

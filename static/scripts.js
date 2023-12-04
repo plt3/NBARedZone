@@ -6,6 +6,7 @@ import {
   fullScreenKeybind,
   urlTypeKeybind,
   scoresKeybind,
+  scrollKeybind,
 } from "./keybinds.js";
 
 /* GLOBALS */
@@ -47,6 +48,8 @@ document.onkeydown = async (e) => {
     toggleUrlType();
   } else if (code === scoresKeybind && frames.length > 0) {
     await toggleScoresPopup();
+  } else if (code === scrollKeybind) {
+    scrollToStreams();
   }
 };
 
@@ -150,14 +153,23 @@ async function toggleScoresPopup() {
       scoresPopup.appendChild(line);
     }
 
-    scoresPopup.querySelector(
-      "h2"
-    ).textContent = `Live Games (${scoresArr.length}):`;
+    scoresPopup.querySelector("h2").textContent =
+      `Live Games (${scoresArr.length}):`;
 
     popupFrame.style.display = "flex";
   }
 
   scoresDisplayed = !scoresDisplayed;
+}
+
+function scrollToStreams() {
+  if (frames !== null) {
+    frameContainer.scrollIntoView({ behavior: "smooth" });
+  } else {
+    document
+      .getElementById("loading-screen")
+      .scrollIntoView({ behavior: "smooth" });
+  }
 }
 
 function createFrame(url, gameIndex, title) {
@@ -210,4 +222,8 @@ async function getStreams() {
   }
 }
 
-window.onload = getStreams;
+window.onload = async () => {
+  const scrollButton = document.getElementById("scroll-button");
+  scrollButton.onclick = scrollToStreams;
+  await getStreams();
+};

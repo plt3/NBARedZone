@@ -100,11 +100,33 @@ iframe {
   padding: 20px;
 }
 
+#header {
+  display: grid;
+  grid-template-columns: 33.333% 33.333% 33.333%;
+  grid-template-rows: auto;
+}
+
+#left-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#right-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  color: #ffffff;
+  padding-right: 10px;
+}
+
 #title-box {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 10px;
+  margin: 0px;
 }
 
 #title-box h1 {
@@ -115,4 +137,35 @@ iframe {
 #title-box p {
   color: rgba(255, 255, 255, 0.6);
   margin: 0px;
+}
+
+#right-header p {
+  margin: 0px;
+}
+
+#right-header a {
+  margin: 0px;
+  color: #0c6de2;
+}
+
+#right-header a:link {
+  text-decoration: none;
+}
+
+#right-header a:hover {
+  text-decoration: underline;
+}
+
+#scroll-button {
+  background-color: #616161;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  padding: 7px 16px;
+  font-size: 16px;
+}
+
+#scroll-button:hover {
+  background-color: #787878;
+  cursor: pointer;
 }
