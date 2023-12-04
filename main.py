@@ -1,6 +1,7 @@
 import os
 import sys
 
+import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -54,3 +55,12 @@ def getScores():
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+if __name__ == "__main__":
+    try:
+        port = os.environ.get("PORT", "5000")
+        port = int(port)
+    except ValueError:
+        port = 5000
+    uvicorn.run("main:app", host="0.0.0.0", port=port, log_level="info")

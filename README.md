@@ -63,3 +63,8 @@ NOTE: only tested on macOS
   their audio (i.e. mute/unmute each stream programmatically). You must click on the
   volume control for each stream individually, and then click back outside of the stream
   to bring the focus back to the main page for the keyboard shortcuts to work again.
+
+## TODO:
+
+- rotate through multiple streams for the same game when they sometimes appear?
+  - sometimes one works and one doesn't
