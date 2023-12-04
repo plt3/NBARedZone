@@ -26,30 +26,6 @@ scraper = Scraper(useCurl=useCurl)
 def getStreams():
     return scraper.getAllStreams()
 
-    dummyData = [
-        {
-            "title": "Toronto Raptors vs Washington Wizards",
-            "stream_url": "https://bestsolaris.com/nbastreams/toronto-raptors-vs-washington-wizards/",
-            "embedding_url": "https://bestsolaris.com/solaris.php?postid=45958",
-        },
-        {
-            "title": "Sacramento Kings vs Cleveland Cavaliers",
-            "stream_url": "https://bestsolaris.com/nbastreams/sacramento-kings-vs-cleveland-cavaliers/",
-            "embedding_url": "https://bestsolaris.com/solaris.php?postid=45960",
-        },
-        {
-            "title": "Some other game",
-            "stream_url": "https://bestsolaris.com/nbastreams/sacramento-kings-vs-cleveland-cavaliers/",
-            "embedding_url": "https://bestsolaris.com/solaris.php?postid=45959",
-        },
-        {
-            "title": "yet another game frame",
-            "stream_url": "https://bestsolaris.com/nbastreams/toronto-raptors-vs-washington-wizards/",
-            "embedding_url": "https://bestsolaris.com/solaris.php?postid=45958",
-        },
-    ]
-    return dummyData
-
 
 @app.get("/scores")
 def getScores():

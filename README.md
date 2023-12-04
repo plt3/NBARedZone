@@ -21,11 +21,6 @@ NOTE: only tested on macOS
 ## Keyboard Shortcuts:
 
 - the web page is entirely keyboard-driven. No buttons are available to perform these actions via clicks.
-- NOTE: keybinds only work when the outer page has focus (not the embedded streams), and
-  the page will lose focus every time you click inside a stream. The page's background
-  color will become a lighter gray when it loses focus, which means that the keybinds
-  will no longer work. Simply click anywhere on the page outside of a stream to turn the
-  background color back to dark gray, indicating that keybinds will work again.
 - all keyboard shortcuts are customizable via editing `static/keybinds.js`
 
 ### One-Part Keybinds:
@@ -36,6 +31,7 @@ NOTE: only tested on macOS
   embedded streams don't work and the full page does, so this may be worth the try if
   the streams are not loading.
 - `D`: scroll down past the header to the streams
+- `?`: toggle help popup
 
 ### Two-Part Keybinds:
 

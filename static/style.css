@@ -2,6 +2,7 @@ html,
 body {
   height: 100%;
   font-family: Helvetica;
+  background-color: #18191a;
 }
 
 main {
@@ -12,14 +13,6 @@ main {
 iframe {
   height: 100%;
   width: 100%;
-}
-
-.background-focused {
-  background-color: #18191a;
-}
-
-.background-blurred {
-  background-color: #343639;
 }
 
 .container-1 {
@@ -57,6 +50,7 @@ iframe {
   position: absolute;
   opacity: 1;
   transition: opacity 1s;
+  pointer-events: none;
 }
 
 #frame-container {
@@ -96,7 +90,7 @@ iframe {
   width: 100%;
 }
 
-#scores-popup {
+#popup {
   z-index: 5;
   display: flex;
   flex-direction: column;
@@ -107,6 +101,17 @@ iframe {
   padding: 20px;
 }
 
+#popup .help-title {
+  margin: 0px;
+}
+
+#popup h3,
+#popup h4,
+#popup p,
+#popup ul {
+  margin: 10px 0px 0px;
+}
+
 #header {
   display: grid;
   grid-template-columns: 33.333% 33.333% 33.333%;
@@ -115,8 +120,9 @@ iframe {
 
 #left-header {
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 #right-header {
@@ -141,25 +147,30 @@ iframe {
   margin: 0px 0px 10px;
 }
 
-#title-box p {
+#header p {
+  margin: 0px;
+}
+
+#title-box h3 {
   color: rgba(255, 255, 255, 0.6);
-  margin: 0px;
+  margin: 0px 0px 10px;
 }
 
-#right-header p {
-  margin: 0px;
+#left-header p {
+  color: #ffffff;
+  margin: 0px 0px 10px;
 }
 
-#right-header a {
+a {
   margin: 0px;
   color: #0c6de2;
 }
 
-#right-header a:link {
+a:link {
   text-decoration: none;
 }
 
-#right-header a:hover {
+a:hover {
   text-decoration: underline;
 }
 
