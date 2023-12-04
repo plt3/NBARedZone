@@ -226,4 +226,15 @@ window.onload = async () => {
   const scrollButton = document.getElementById("scroll-button");
   scrollButton.onclick = scrollToStreams;
   await getStreams();
+
+  // change background color if iframe is focused, which means that keybinds won't work
+  window.onblur = () => {
+    document.querySelector("html").className = "background-blurred";
+    document.querySelector("body").className = "background-blurred";
+  };
+
+  window.onfocus = () => {
+    document.querySelector("html").className = "background-focused";
+    document.querySelector("body").className = "background-focused";
+  };
 };

@@ -1,7 +1,6 @@
 html,
 body {
   height: 100%;
-  background-color: #18191a;
   font-family: Helvetica;
 }
 
@@ -13,6 +12,14 @@ main {
 iframe {
   height: 100%;
   width: 100%;
+}
+
+.background-focused {
+  background-color: #18191a;
+}
+
+.background-blurred {
+  background-color: #343639;
 }
 
 .container-1 {

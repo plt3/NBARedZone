@@ -21,18 +21,21 @@ NOTE: only tested on macOS
 ## Keyboard Shortcuts:
 
 - the web page is entirely keyboard-driven. No buttons are available to perform these actions via clicks.
-- NOTE: you need to have focus on the outer page (not the embedded streams themselves)
-  for the keyboard shortcuts to work. This means clicking on the margin between streams after
-  clicking inside a stream to return the focus back to the main page.
+- NOTE: keybinds only work when the outer page has focus (not the embedded streams), and
+  the page will lose focus every time you click inside a stream. The page's background
+  color will become a lighter gray when it loses focus, which means that the keybinds
+  will no longer work. Simply click anywhere on the page outside of a stream to turn the
+  background color back to dark gray, indicating that keybinds will work again.
 - all keyboard shortcuts are customizable via editing `static/keybinds.js`
 
-### Keybinds that Toggle Things:
+### One-Part Keybinds:
 
 - `F`: toggle fullscreen of the entire web page
 - `G`: toggle live scores popup to see all games currently live (if there are more than 4)
 - `U`: toggle between embedded stream view and full page stream view. Sometimes the
   embedded streams don't work and the full page does, so this may be worth the try if
   the streams are not loading.
+- `D`: scroll down past the header to the streams
 
 ### Two-Part Keybinds:
 
