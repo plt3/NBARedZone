@@ -54,6 +54,7 @@ class Scraper:
             return []
         params = {"page": 1, "per_page": self.gamesPerPage}
         streams = []
+        gameIndices = {}
         done = False
 
         while not done:
@@ -65,24 +66,28 @@ class Scraper:
 
                 for stream in respJson:
                     title = stream["title"]["rendered"]
-                    for index, game in enumerate(liveGames):
+                    for game in liveGames:
                         if game["home"] in title and game["away"] in title:
+                            teamTup = (game["home"], game["away"])
                             streamUrl = stream["link"]
                             embeddingUrl = self.embeddingUrlBase + str(stream["id"])
-                            streams.append(
-                                {
-                                    "title": title,
-                                    "stream_url": streamUrl,
-                                    "embedding_url": embeddingUrl,
-                                    "point_diff": abs(
-                                        game["home_score"] - game["away_score"]
-                                    ),
-                                }
-                            )
-                            del liveGames[index]
+                            gameDict = {
+                                "title": title,
+                                "stream_url": streamUrl,
+                                "embedding_url": embeddingUrl,
+                                "point_diff": abs(
+                                    game["home_score"] - game["away_score"]
+                                ),
+                            }
+                            if teamTup not in gameIndices:
+                                gameIndices[teamTup] = len(streams)
+                                streams.append([gameDict])
+                            else:
+                                streams[gameIndices[teamTup]].append(gameDict)
+
                             break
 
-                if len(liveGames) == 0 or len(respJson) < self.gamesPerPage:
+                if len(respJson) < self.gamesPerPage:
                     done = True
 
                 params["page"] += 1
