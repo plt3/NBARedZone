@@ -66,8 +66,12 @@ class Scraper:
 
                 for stream in respJson:
                     title = stream["title"]["rendered"]
+                    lowerTitle = title.lower()
                     for game in liveGames:
-                        if game["home"] in title and game["away"] in title:
+                        if (
+                            game["home"].lower() in lowerTitle
+                            and game["away"].lower() in lowerTitle
+                        ):
                             teamTup = (game["home"], game["away"])
                             streamUrl = stream["link"]
                             embeddingUrl = self.embeddingUrlBase + str(stream["id"])
@@ -79,6 +83,8 @@ class Scraper:
                                     game["home_score"] - game["away_score"]
                                 ),
                             }
+                            # add to correct index if another mirror has already been
+                            # found, otherwise create a new index
                             if teamTup not in gameIndices:
                                 gameIndices[teamTup] = len(streams)
                                 streams.append([gameDict])
@@ -99,8 +105,9 @@ class Scraper:
         if sort:
             streams.sort(key=lambda s: s[0]["point_diff"])
 
-        for stream in streams:
-            del stream[0]["point_diff"]
+        for mirrorList in streams:
+            for stream in mirrorList:
+                del stream["point_diff"]
 
         return streams
 

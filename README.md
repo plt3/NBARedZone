@@ -40,8 +40,11 @@ NOTE: only tested on macOS
 - action keys:
   - `R`: reload a frame. Useful for when streams buffer (mnemonic: Reload)
   - `T`: toggle a frame to take up the entire web page (i.e. fullscreen it) (mnemonic: Toggle)
-  - `S`: rotate the stream that a frame is displaying. Useful for when more than 4 games
+  - `S`: rotate the game that a frame is displaying. Useful for when more than 4 games
     are going on and you would like to switch the games you are watching. (mnemonic: Stream)
+  - `A`: change the mirror that a frame is displaying. Sometimes bestsolaris.com hosts
+    multiple streams for the same game and one does not work, so this allows you to try
+    different ones if they are available. (mnemonic: Alternate)
 - frame keys:
   - `1`: perform the given action on frame 1 (top-left)
   - `2`: perform the given action on frame 2 (top-right)

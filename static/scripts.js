@@ -45,16 +45,20 @@ document.onkeydown = async (e) => {
 
   if (Object.keys(keybindFunctions).includes(key)) {
     currentAction = key;
-  } else if (currentAction !== null && actionKeybinds.includes(key)) {
+  } else if (
+    currentAction !== null &&
+    actionKeybinds.includes(key) &&
+    frames !== null
+  ) {
     const index = actionKeybinds.indexOf(key);
     if (index !== -1 && index < frames.length) {
       keybindFunctions[currentAction](index);
     }
   } else if (key === fullScreenKeybind) {
     toggleFullScreen();
-  } else if (key === urlTypeKeybind) {
+  } else if (key === urlTypeKeybind && frames !== null && frames.length > 0) {
     toggleUrlType();
-  } else if (key === scoresKeybind && frames.length > 0) {
+  } else if (key === scoresKeybind && frames !== null && frames.length > 0) {
     await togglePopup(true);
   } else if (key === helpKeybind) {
     await togglePopup(false);
