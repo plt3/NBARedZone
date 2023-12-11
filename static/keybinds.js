@@ -8,6 +8,8 @@ export const reloadKeybind = "r";
 export const toggleKeybind = "t";
 // prefix key to perform stream rotation action
 export const rotateKeybind = "s";
+// prefix key to perform alternate stream action
+export const alternateKeybind = "a";
 
 // toggle website fullscreen
 export const fullScreenKeybind = "f";

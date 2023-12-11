@@ -1,8 +1,8 @@
 # NBARedZone
 
-> Watch bestsolaris.com NBA games RedZone-style
+> Watch bestsolaris.com NBA games RedZone-style: [website](https://nbaredzone.applikuapp.com/)
 
-<img width="1440" alt="NBARedZone" src="https://github.com/plt3/NBARedZone/assets/65266160/b90dfd9c-eaff-49e4-b302-d78bbec7cfac">
+<img width="1440" alt="NBARedZone" src="https://github.com/plt3/NBARedZone/assets/65266160/09f9b6e1-3df3-4487-bb8c-91966b37fe66">
 
 ## Installation:
 
@@ -40,8 +40,11 @@ NOTE: only tested on macOS
 - action keys:
   - `R`: reload a frame. Useful for when streams buffer (mnemonic: Reload)
   - `T`: toggle a frame to take up the entire web page (i.e. fullscreen it) (mnemonic: Toggle)
-  - `S`: rotate the stream that a frame is displaying. Useful for when more than 4 games
+  - `S`: rotate the game that a frame is displaying. Useful for when more than 4 games
     are going on and you would like to switch the games you are watching. (mnemonic: Stream)
+  - `A`: change the mirror that a frame is displaying. Sometimes bestsolaris.com hosts
+    multiple streams for the same game and one does not work, so this allows you to try
+    different ones if they are available. (mnemonic: Alternate)
 - frame keys:
   - `1`: perform the given action on frame 1 (top-left)
   - `2`: perform the given action on frame 2 (top-right)
@@ -54,16 +57,13 @@ NOTE: only tested on macOS
 
 ## Limitations:
 
-- all this webpage does is embed streams from bestsolaris.com. This means that I have no
-  control over the quality of the streams, and they often buffer or just don't work. Make use
-  of the reload keybind if a stream buffers or toggle between the embedded stream view
-  and full page stream view if one is not working.
-- since the embedded streams are from a different domain, the webpage can't control
-  their audio (i.e. mute/unmute each stream programmatically). You must click on the
-  volume control for each stream individually, and then click back outside of the stream
-  to bring the focus back to the main page for the keyboard shortcuts to work again.
-
-## TODO:
-
-- rotate through multiple streams for the same game when they sometimes appear?
-  - sometimes one works and one doesn't
+- **Streams not working:** All this webpage does is embed streams from bestsolaris.com.
+  This means that I have no control over the quality of the streams, and they often buffer
+  or just don't work. Make use of the reload keybind if a stream buffers or toggle between
+  the embedded stream view and full page stream view if one is not working.
+- **Can't control audio via keyboard:** Since the embedded streams are from a different domain,
+  the webpage can't control their audio (i.e. mute/unmute each stream programmatically).
+  You must click on the volume control for each stream individually.
+- **Popups:** bestsolaris.com has lots of popups, and embedding the streams in a different page
+  does not avoid them. It is highly recommended to use some sort of adblocker to avoid them
+  (like [uBlock Origin](https://github.com/gorhill/uBlock)).

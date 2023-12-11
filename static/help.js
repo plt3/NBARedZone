@@ -3,6 +3,7 @@ import {
   reloadKeybind,
   toggleKeybind,
   rotateKeybind,
+  alternateKeybind,
   fullScreenKeybind,
   urlTypeKeybind,
   scoresKeybind,
@@ -45,7 +46,11 @@ const twoPartKeybinds = {
     },
     {
       key: rotateKeybind,
-      description: "rotate the stream that a frame is displaying",
+      description: "rotate the game that a frame is displaying",
+    },
+    {
+      key: alternateKeybind,
+      description: "change the mirror that a frame is displaying",
     },
   ],
   frame_keys: [

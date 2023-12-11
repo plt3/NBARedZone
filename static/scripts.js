@@ -3,6 +3,7 @@ import {
   reloadKeybind,
   toggleKeybind,
   rotateKeybind,
+  alternateKeybind,
   fullScreenKeybind,
   urlTypeKeybind,
   scoresKeybind,
@@ -17,7 +18,12 @@ import { showHelpMessage } from "./help.js";
 const keybindFunctions = {
   [reloadKeybind]: reloadFrame,
   [toggleKeybind]: toggleStreamFullScreen,
-  [rotateKeybind]: rotateStream,
+  [rotateKeybind]: (index) => {
+    rotateStream(index, false);
+  },
+  [alternateKeybind]: (index) => {
+    rotateStream(index, true);
+  },
 };
 // amount of milliseconds to display title of game in each frame
 const titleTimeout = 3000;
@@ -39,16 +45,20 @@ document.onkeydown = async (e) => {
 
   if (Object.keys(keybindFunctions).includes(key)) {
     currentAction = key;
-  } else if (currentAction !== null && actionKeybinds.includes(key)) {
+  } else if (
+    currentAction !== null &&
+    actionKeybinds.includes(key) &&
+    frames !== null
+  ) {
     const index = actionKeybinds.indexOf(key);
     if (index !== -1 && index < frames.length) {
       keybindFunctions[currentAction](index);
     }
   } else if (key === fullScreenKeybind) {
     toggleFullScreen();
-  } else if (key === urlTypeKeybind) {
+  } else if (key === urlTypeKeybind && frames !== null && frames.length > 0) {
     toggleUrlType();
-  } else if (key === scoresKeybind && frames.length > 0) {
+  } else if (key === scoresKeybind && frames !== null && frames.length > 0) {
     await togglePopup(true);
   } else if (key === helpKeybind) {
     await togglePopup(false);
@@ -101,19 +111,34 @@ function toggleStreamFullScreen(index) {
   }
 }
 
-function rotateStream(index) {
+function rotateStream(index, alternate = false) {
   // rotate stream of given frame, specified by rotateKeybinds
   const frame = frames[index];
 
-  frame.dataset.gameIndex =
-    (Number(frame.dataset.gameIndex) + 1) % streamsArr.length;
+  if (alternate) {
+    frame.dataset.mirrorIndex =
+      (Number(frame.dataset.mirrorIndex) + 1) %
+      streamsArr[frame.dataset.gameIndex].length;
+  } else {
+    frame.dataset.gameIndex =
+      (Number(frame.dataset.gameIndex) + 1) % streamsArr.length;
+    frame.dataset.mirrorIndex = 0;
+  }
+  let newGameIndex = frame.dataset.gameIndex;
+  let newMirrorIndex = frame.dataset.mirrorIndex;
+
   frame.querySelector("iframe").src =
-    streamsArr[frame.dataset.gameIndex][urlKey];
+    streamsArr[newGameIndex][newMirrorIndex][urlKey];
 
   // change title of stream and display it
   clearTimeout(timeouts[index]);
   const title = frame.querySelector("h2");
-  title.textContent = streamsArr[frame.dataset.gameIndex].title;
+  const gameTitle =
+    streamsArr[frame.dataset.gameIndex][frame.dataset.mirrorIndex].title;
+  const numMirrors = streamsArr[frame.dataset.gameIndex].length;
+  title.textContent = `${gameTitle}:  mirror ${
+    Number(frame.dataset.mirrorIndex) + 1
+  }/${numMirrors}`;
   title.style.opacity = 1;
   const timeout = setTimeout(() => {
     removeTitle(index);
@@ -137,7 +162,7 @@ function toggleUrlType() {
   }
   for (const frame of frames) {
     frame.querySelector("iframe").src =
-      streamsArr[frame.dataset.gameIndex][urlKey];
+      streamsArr[frame.dataset.gameIndex][frame.dataset.mirrorIndex][urlKey];
   }
 }
 
@@ -186,20 +211,28 @@ function scrollToStreams() {
   }
 }
 
-function createFrame(url, gameIndex, title) {
+function createFrame(gameIndex, mirrorIndex) {
   // create stream frames and add to DOM. To be called by getStreams on page load
+  const stream = streamsArr[gameIndex][mirrorIndex];
   const frameDiv = document.createElement("div");
   frameDiv.className = "frame";
   frameDiv.dataset.gameIndex = gameIndex;
+  frameDiv.dataset.mirrorIndex = mirrorIndex;
 
   const iframe = document.createElement("iframe");
   iframe.setAttribute("frameborder", "0");
-  iframe.setAttribute("src", url);
+  iframe.setAttribute("src", stream[urlKey]);
   frameDiv.appendChild(iframe);
 
-  const gameTitle = document.createElement("h2");
-  gameTitle.textContent = title;
-  frameDiv.appendChild(gameTitle);
+  const gameTitleh2 = document.createElement("h2");
+  gameTitleh2.textContent = stream.title;
+  const gameTitle =
+    streamsArr[frameDiv.dataset.gameIndex][frameDiv.dataset.mirrorIndex].title;
+  const numMirrors = streamsArr[frameDiv.dataset.gameIndex].length;
+  gameTitleh2.textContent = `${gameTitle}:  mirror ${
+    Number(frameDiv.dataset.mirrorIndex) + 1
+  }/${numMirrors}`;
+  frameDiv.appendChild(gameTitleh2);
 
   frameContainer.appendChild(frameDiv);
 }
@@ -210,8 +243,7 @@ async function getStreams() {
   streamsArr = await response.json();
 
   for (let index = 0; index < Math.min(streamsArr.length, 4); index++) {
-    const stream = streamsArr[index];
-    createFrame(stream[urlKey], index, stream.title);
+    createFrame(index, 0);
     const timeout = setTimeout(() => {
       removeTitle(index);
     }, titleTimeout);
