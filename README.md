@@ -4,11 +4,14 @@
 
 <img width="1440" alt="NBARedZone" src="https://github.com/plt3/NBARedZone/assets/65266160/09f9b6e1-3df3-4487-bb8c-91966b37fe66">
 
-## Installation:
+## Local Installation:
 
-NOTE: only tested on macOS
+NOTE: only tested on macOS. This section (and the usage section) are only necessary if you
+would like to host NBARedZone on your own machine. If you would just like to use it, check out
+[the website](https://nbaredzone.applikuapp.com/).
 
-- create a virtual environment for Python packages (recommended); in project directory, run `python3 -m venv venv` then `source venv/bin/activate`
+- create a virtual environment for Python packages (recommended); in project directory,
+  run `python3 -m venv venv` then `source venv/bin/activate`
 - clone the repository: `git clone https://github.com/plt3/NBARedZone.git`
 - install dependencies with `pip install -r requirements.txt`
 
@@ -16,7 +19,8 @@ NOTE: only tested on macOS
 
 - run server with `uvicorn main:app`
 - this will serve `http://localhost:8000`, so open that address in a browser
-  - the page will find all NBA games currently live, and will display up to 4 games on the page. Click the play icon to start each stream
+  - the page will find all NBA games currently live, and will display up to 4 games on the page.
+    Click the play icon to start each stream
 
 ## Keyboard Shortcuts:
 
