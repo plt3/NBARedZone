@@ -158,7 +158,7 @@ function toggleUrlType() {
   }
   for (const frame of frames) {
     frame.querySelector("iframe").src =
-      streamsArr[frame.dataset.gameIndex][urlKey];
+      streamsArr[frame.dataset.gameIndex][frame.dataset.mirrorIndex][urlKey];
   }
 }
 

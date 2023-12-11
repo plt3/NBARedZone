@@ -97,10 +97,10 @@ class Scraper:
                 done = True
 
         if sort:
-            streams.sort(key=lambda s: s["point_diff"])
+            streams.sort(key=lambda s: s[0]["point_diff"])
 
         for stream in streams:
-            del stream["point_diff"]
+            del stream[0]["point_diff"]
 
         return streams
 
