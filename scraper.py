@@ -31,7 +31,7 @@ class Scraper:
 
         if board.games is not None:
             for game in board.games.get_dict():
-                if game["gameClock"] != "":
+                if game["gameClock"] != "" and game["gameStatusText"] != "Final":
                     gameDict = {
                         "home": game["homeTeam"]["teamName"],
                         "away": game["awayTeam"]["teamName"],
@@ -117,6 +117,6 @@ class Scraper:
 
 
 if __name__ == "__main__":
-    scr = Scraper(useCurl=True)
+    scr = Scraper()
     streams = scr.getAllStreams()
     __import__("pprint").pprint(streams)
