@@ -34,6 +34,7 @@ would like to host NBARedZone on your own machine. If you would just like to use
 - `U`: toggle between embedded stream view and full page stream view. Sometimes the
   embedded streams don't work and the full page does, so this may be worth the try if
   the streams are not loading.
+- `I`: show titles of games currently being displayed
 - `D`: scroll down past the header to the streams
 - `?`: toggle help popup
 

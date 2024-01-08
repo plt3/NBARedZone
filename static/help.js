@@ -7,6 +7,7 @@ import {
   fullScreenKeybind,
   urlTypeKeybind,
   scoresKeybind,
+  titleKeybind,
   scrollKeybind,
   helpKeybind,
 } from "./keybinds.js";
@@ -26,6 +27,10 @@ const onePartKeybinds = [
     key: urlTypeKeybind,
     description:
       "toggle between embedded stream view and full page stream view",
+  },
+  {
+    key: titleKeybind,
+    description: "show titles of games currently being displayed",
   },
   {
     key: scrollKeybind,
