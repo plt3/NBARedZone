@@ -7,6 +7,7 @@ import {
   fullScreenKeybind,
   urlTypeKeybind,
   scoresKeybind,
+  titleKeybind,
   scrollKeybind,
   helpKeybind,
 } from "./keybinds.js";
@@ -56,14 +57,20 @@ document.onkeydown = async (e) => {
     }
   } else if (key === fullScreenKeybind) {
     toggleFullScreen();
-  } else if (key === urlTypeKeybind && frames !== null && frames.length > 0) {
-    toggleUrlType();
-  } else if (key === scoresKeybind && frames !== null && frames.length > 0) {
-    await togglePopup(true);
-  } else if (key === helpKeybind) {
-    await togglePopup(false);
   } else if (key === scrollKeybind) {
     scrollToStreams();
+  } else if (frames !== null && frames.length > 0) {
+    if (key === urlTypeKeybind) {
+      toggleUrlType();
+    } else if (key === scoresKeybind) {
+      await togglePopup(true);
+    } else if (key === helpKeybind) {
+      await togglePopup(false);
+    } else if (key === titleKeybind) {
+      for (let index = 0; index < frames.length; index++) {
+        changeTitle(index, "");
+      }
+    }
   }
 };
 
@@ -71,6 +78,23 @@ function removeTitle(index) {
   // fade stream title out
   const title = frames[index].querySelector("h2");
   title.style.opacity = 0;
+}
+
+function changeTitle(index, newTitle) {
+  const frame = frames[index];
+  clearTimeout(timeouts[index]);
+  const title = frame.querySelector("h2");
+  // call with newTitle as empty string to just show title instead of changing it
+  if (newTitle !== "") {
+    title.textContent = newTitle;
+  }
+  title.style.opacity = 1;
+
+  const timeout = setTimeout(() => {
+    const title = frames[index].querySelector("h2");
+    title.style.opacity = 0;
+  }, titleTimeout);
+  timeouts[index] = timeout;
 }
 
 function reloadFrame(index) {
@@ -131,19 +155,13 @@ function rotateStream(index, alternate = false) {
     streamsArr[newGameIndex][newMirrorIndex][urlKey];
 
   // change title of stream and display it
-  clearTimeout(timeouts[index]);
-  const title = frame.querySelector("h2");
   const gameTitle =
     streamsArr[frame.dataset.gameIndex][frame.dataset.mirrorIndex].title;
   const numMirrors = streamsArr[frame.dataset.gameIndex].length;
-  title.textContent = `${gameTitle}:  mirror ${
+  const newTitle = `${gameTitle}:  mirror ${
     Number(frame.dataset.mirrorIndex) + 1
   }/${numMirrors}`;
-  title.style.opacity = 1;
-  const timeout = setTimeout(() => {
-    removeTitle(index);
-  }, titleTimeout);
-  timeouts[index] = timeout;
+  changeTitle(index, newTitle);
 }
 
 function toggleFullScreen() {
@@ -225,7 +243,6 @@ function createFrame(gameIndex, mirrorIndex) {
   frameDiv.appendChild(iframe);
 
   const gameTitleh2 = document.createElement("h2");
-  gameTitleh2.textContent = stream.title;
   const gameTitle =
     streamsArr[frameDiv.dataset.gameIndex][frameDiv.dataset.mirrorIndex].title;
   const numMirrors = streamsArr[frameDiv.dataset.gameIndex].length;

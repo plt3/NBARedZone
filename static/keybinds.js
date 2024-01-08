@@ -17,6 +17,8 @@ export const fullScreenKeybind = "f";
 export const urlTypeKeybind = "u";
 // toggle game scores popup
 export const scoresKeybind = "g";
+// show titles of games currently displayed
+export const titleKeybind = "i";
 // scroll down past header to streams
 export const scrollKeybind = "d";
 // toggle help popup
