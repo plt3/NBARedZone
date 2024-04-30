@@ -4,6 +4,7 @@ import {
   toggleKeybind,
   rotateKeybind,
   alternateKeybind,
+  muteKeybind,
   fullScreenKeybind,
   urlTypeKeybind,
   scoresKeybind,
@@ -13,6 +14,8 @@ import {
 } from "./keybinds.js";
 
 /* Generate help messages based on keybinds set in keybinds.js */
+
+const LINK_REPLACE_TEXT = "REPLACE_LINK";
 
 const onePartKeybinds = [
   {
@@ -57,6 +60,14 @@ const twoPartKeybinds = {
       key: alternateKeybind,
       description: "change the mirror that a frame is displaying",
     },
+    {
+      key: muteKeybind,
+      description: `mute/unmute a frame (NOTE: requires ${LINK_REPLACE_TEXT} to work)`,
+      link: {
+        text: "browser extension",
+        href: "https://github.com/plt3/NBARedZone#installing-browser-extension-to-muteunmute-streams-optional",
+      },
+    },
   ],
   frame_keys: [
     {
@@ -78,6 +89,31 @@ const twoPartKeybinds = {
   ],
 };
 
+const errorLine = {
+  description: `Streams not working? See ${LINK_REPLACE_TEXT} on GitHub for information.`,
+  link: {
+    text: "limitations section",
+    href: "https://github.com/plt3/NBARedZone#limitations",
+  },
+};
+
+function makeLineWithLink(lineObject, parentElement) {
+  const link = document.createElement("a");
+  link.href = lineObject.link.href;
+  link.textContent = lineObject.link.text;
+  link.target = "_blank";
+  const link_start_pos = lineObject.description.search(LINK_REPLACE_TEXT);
+  parentElement.appendChild(
+    document.createTextNode(lineObject.description.slice(0, link_start_pos)),
+  );
+  parentElement.appendChild(link);
+  parentElement.appendChild(
+    document.createTextNode(
+      lineObject.description.slice(link_start_pos + LINK_REPLACE_TEXT.length),
+    ),
+  );
+}
+
 function makeUlFromArray(helpArray) {
   const unorderedList = document.createElement("ul");
   for (const keybind of helpArray) {
@@ -85,7 +121,12 @@ function makeUlFromArray(helpArray) {
     const boldKey = document.createElement("b");
     boldKey.textContent = keybind.key.toUpperCase();
     line.appendChild(boldKey);
-    line.appendChild(document.createTextNode(`: ${keybind.description}`));
+    if (keybind.hasOwnProperty("link")) {
+      line.appendChild(document.createTextNode(": "));
+      makeLineWithLink(keybind, line);
+    } else {
+      line.appendChild(document.createTextNode(`: ${keybind.description}`));
+    }
     unorderedList.appendChild(line);
   }
   return unorderedList;
@@ -119,12 +160,6 @@ export function showHelpMessage(popup, popupTitle) {
   popup.appendChild(makeUlFromArray(twoPartKeybinds.frame_keys));
 
   const errorHelp = document.createElement("p");
-  const ghLink = document.createElement("a");
-  ghLink.href = "https://github.com/plt3/NBARedZone#limitations";
-  ghLink.textContent = "limitations section";
-  ghLink.target = "_blank";
-  errorHelp.appendChild(document.createTextNode("Streams not working? See "));
-  errorHelp.appendChild(ghLink);
-  errorHelp.appendChild(document.createTextNode(" on GitHub for information."));
+  makeLineWithLink(errorLine, errorHelp);
   popup.appendChild(errorHelp);
 }

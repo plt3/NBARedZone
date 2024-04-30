@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "NBARedZone mute helper",
+  "description": "Implement stream mute/unmute functionality for NBARedZone web app",
+  "version": "1.0",
+  "content_scripts": [
+    {
+      "matches": ["https://*.bestsolaris.com/*"],
+      "js": ["addMessageHandler.js"],
+      "all_frames": true
+    }
+  ]
+}
