@@ -4,6 +4,7 @@ import {
   toggleKeybind,
   rotateKeybind,
   alternateKeybind,
+  muteKeybind,
   fullScreenKeybind,
   urlTypeKeybind,
   scoresKeybind,
@@ -25,9 +26,13 @@ const keybindFunctions = {
   [alternateKeybind]: (index) => {
     rotateStream(index, true);
   },
+  [muteKeybind]: toggleFrameMute,
 };
 // amount of milliseconds to display title of game in each frame
 const titleTimeout = 3000;
+// amount of milliseconds to wait after action that change's iframe's URL to send
+// mute message to stream (muting won't work if message is sent immediately)
+const muteMessageTimeout = 1000;
 let currentAction = null;
 let zoomedFrameId = null;
 let popupType = null;
@@ -59,13 +64,13 @@ document.onkeydown = async (e) => {
     toggleFullScreen();
   } else if (key === scrollKeybind) {
     scrollToStreams();
+  } else if (key === helpKeybind) {
+    await togglePopup(false);
   } else if (frames !== null && frames.length > 0) {
     if (key === urlTypeKeybind) {
       toggleUrlType();
     } else if (key === scoresKeybind) {
       await togglePopup(true);
-    } else if (key === helpKeybind) {
-      await togglePopup(false);
     } else if (key === titleKeybind) {
       for (let index = 0; index < frames.length; index++) {
         changeTitle(index, "");
@@ -98,13 +103,44 @@ function changeTitle(index, newTitle) {
 }
 
 function reloadFrame(index) {
-  // reload given frame, specified by reloadKeybinds
+  // reload given frame, specified by reloadKeybind
   const iframe = frames[index].querySelector("iframe");
   iframe.src += "";
+  if (frames[index].dataset.muted === "mute") {
+    setTimeout(() => {
+      toggleFrameMute(index, "mute");
+    }, muteMessageTimeout);
+  }
+}
+
+function toggleFrameMute(index, force = null) {
+  // mute/unmute given frame, specified by muteKeybind
+  // NOTE: this requires custom browser extension to add message handler to
+  // bestsolaris.com page
+  const currentFrame = frames[index];
+  let message;
+  if (
+    force !== "unmute" &&
+    (force === "mute" || currentFrame.dataset.muted === "unmute")
+  ) {
+    message = "mute";
+  } else if (force === "unmute" || currentFrame.dataset.muted === "mute") {
+    // mute all other frames if unmuting one
+    for (let i = 0; i < frames.length; i++) {
+      if (i !== index) {
+        toggleFrameMute(i, "mute");
+      }
+    }
+    message = "unmute";
+  }
+  currentFrame
+    .querySelector("iframe")
+    .contentWindow.postMessage(message, "https://bestsolaris.com");
+  currentFrame.dataset.muted = message;
 }
 
 function toggleStreamFullScreen(index) {
-  // toggle given frame, specified by toggleKeybinds
+  // toggle given frame, specified by toggleKeybind
   if (zoomedFrameId === null) {
     // no frame is zoomed, so zoom chosen frame
     frameContainer.className = "container-1";
@@ -133,10 +169,13 @@ function toggleStreamFullScreen(index) {
       zoomedFrameId = index;
     }
   }
+  if (zoomedFrameId !== null) {
+    toggleFrameMute(zoomedFrameId, "unmute");
+  }
 }
 
 function rotateStream(index, alternate = false) {
-  // rotate stream of given frame, specified by rotateKeybinds
+  // rotate stream of given frame, specified by rotateKeybind
   const frame = frames[index];
 
   if (alternate) {
@@ -162,6 +201,11 @@ function rotateStream(index, alternate = false) {
     Number(frame.dataset.mirrorIndex) + 1
   }/${numMirrors}`;
   changeTitle(index, newTitle);
+  if (frame.dataset.muted === "mute") {
+    setTimeout(() => {
+      toggleFrameMute(index, "mute");
+    }, muteMessageTimeout);
+  }
 }
 
 function toggleFullScreen() {
@@ -178,9 +222,15 @@ function toggleUrlType() {
   } else {
     urlKey = "embedding_url";
   }
-  for (const frame of frames) {
+  for (let i = 0; i < frames.length; i++) {
+    const frame = frames[i];
     frame.querySelector("iframe").src =
       streamsArr[frame.dataset.gameIndex][frame.dataset.mirrorIndex][urlKey];
+    if (frame.dataset.muted === "mute") {
+      setTimeout(() => {
+        toggleFrameMute(i, "mute");
+      }, muteMessageTimeout);
+    }
   }
 }
 
@@ -236,6 +286,7 @@ function createFrame(gameIndex, mirrorIndex) {
   frameDiv.className = "frame";
   frameDiv.dataset.gameIndex = gameIndex;
   frameDiv.dataset.mirrorIndex = mirrorIndex;
+  frameDiv.dataset.muted = "unmute";
 
   const iframe = document.createElement("iframe");
   iframe.setAttribute("frameborder", "0");
@@ -274,6 +325,15 @@ async function getStreams() {
     return;
   }
 
+  // wait for frames to load, then mute all but first stream
+  setTimeout(() => {
+    for (let i = 0; i < frames.length; i++) {
+      if (i > 0) {
+        toggleFrameMute(i, "mute");
+      }
+    }
+  }, muteMessageTimeout);
+
   document.getElementById("loading-screen").style.display = "none";
   frameContainerClass =
     "container-" + Math.min(streamsArr.length, 4).toString();
@@ -286,8 +346,10 @@ async function getStreams() {
 }
 
 window.onload = async () => {
-  const scrollButton = document.getElementById("scroll-button");
-  scrollButton.onclick = scrollToStreams;
+  document.getElementById("scroll-button").onclick = scrollToStreams;
+  document.getElementById("help-instructions").onclick = async () => {
+    await togglePopup(false);
+  };
   await getStreams();
 
   // bring focus back to main page after clicking inside iframe

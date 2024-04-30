@@ -10,6 +10,8 @@ export const toggleKeybind = "t";
 export const rotateKeybind = "s";
 // prefix key to perform alternate stream action
 export const alternateKeybind = "a";
+// prefix key to perform mute/unmute stream action
+export const muteKeybind = "m";
 
 // toggle website fullscreen
 export const fullScreenKeybind = "f";
