@@ -65,7 +65,8 @@ would like to host NBARedZone on your own machine.
   frame which you would like to perform that action (`1/2/3/4`)
 - action keys:
   - `R`: reload a frame. Useful for when streams buffer (mnemonic: Reload)
-  - `T`: toggle a frame to take up the entire web page (i.e. fullscreen it) (mnemonic: Toggle)
+  - `T`: toggle a frame to take up the entire web page (i.e. fullscreen it). If muting/unmuting
+    is enabled via the browser extension, also unmute selected frame and mute all others. (mnemonic: Toggle)
   - `S`: rotate the game that a frame is displaying. Useful for when more than 4 games
     are going on and you would like to switch the games you are watching. (mnemonic: Stream)
   - `A`: change the mirror that a frame is displaying. Sometimes bestsolaris.com hosts
@@ -97,7 +98,7 @@ would like to host NBARedZone on your own machine.
   streams are from a different domain ([bestsolaris.com](https://bestsolaris.com/)),
   NBARedZone can't control their audio (i.e. mute/unmute each stream programmatically) due
   to the [same-origin policy](https://en.wikipedia.org/wiki/Same-origin_policy). The best
-  way I found around this was to write a small browser extension (in the `chrome_extension` directory)
+  way I found around this was to write a small browser extension (in the `browser_extension` directory)
   that adds a `Window.postMessage()` handler to bestsolaris.com pages to mute/unmute streams.
   This works well, but obviously requires installing an extension, which may be more effort than some
   users may like. If not using the browser extension, you must click on the volume control for each

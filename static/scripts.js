@@ -64,13 +64,13 @@ document.onkeydown = async (e) => {
     toggleFullScreen();
   } else if (key === scrollKeybind) {
     scrollToStreams();
+  } else if (key === helpKeybind) {
+    await togglePopup(false);
   } else if (frames !== null && frames.length > 0) {
     if (key === urlTypeKeybind) {
       toggleUrlType();
     } else if (key === scoresKeybind) {
       await togglePopup(true);
-    } else if (key === helpKeybind) {
-      await togglePopup(false);
     } else if (key === titleKeybind) {
       for (let index = 0; index < frames.length; index++) {
         changeTitle(index, "");
@@ -346,8 +346,10 @@ async function getStreams() {
 }
 
 window.onload = async () => {
-  const scrollButton = document.getElementById("scroll-button");
-  scrollButton.onclick = scrollToStreams;
+  document.getElementById("scroll-button").onclick = scrollToStreams;
+  document.getElementById("help-instructions").onclick = async () => {
+    await togglePopup(false);
+  };
   await getStreams();
 
   // bring focus back to main page after clicking inside iframe
