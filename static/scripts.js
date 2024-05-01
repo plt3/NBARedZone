@@ -65,7 +65,7 @@ document.onkeydown = async (e) => {
   } else if (key === scrollKeybind) {
     scrollToStreams();
   } else if (key === helpKeybind) {
-    await togglePopup("help");
+    await toggleHelpPopup();
   } else if (frames !== null && frames.length > 0) {
     if (key === urlTypeKeybind) {
       toggleUrlType();
@@ -83,6 +83,13 @@ function removeTitle(index) {
   // fade stream title out
   const title = frames[index].querySelector("h2");
   title.style.opacity = 0;
+}
+
+async function toggleHelpPopup() {
+  // don't allow help popup while choosing stream/mirror on mobile
+  if (popupType !== "choose stream" && popupType !== "choose mirror") {
+    await togglePopup("help");
+  }
 }
 
 function changeTitle(index, newTitle) {
@@ -235,11 +242,7 @@ function toggleUrlType() {
 }
 
 async function togglePopup(typeRequested) {
-  if (
-    (popupType === "scores" && typeRequested === "scores") ||
-    (popupType == "help" && typeRequested === "help") ||
-    (popupType == "choose stream" && typeRequested === "choose stream")
-  ) {
+  if (popupType === typeRequested) {
     popupFrame.style.display = "none";
     popupType = null;
   } else {
@@ -267,10 +270,14 @@ async function togglePopup(typeRequested) {
       popupTitle.textContent =
         "Watching multiple streams not supported on mobile. Choose a stream:";
 
-      const displayStreamFunc = (index) => {
+      const moveToMirrorSelection = async (index) => {
         streamsArr = [streamsArr[index]];
-        getStreams(true);
-        togglePopup("choose stream");
+        if (streamsArr[0].length > 1) {
+          togglePopup("choose mirror");
+        } else {
+          await getStreams(0);
+          togglePopup("choose stream");
+        }
       };
 
       for (let i = 0; i < streamsArr.length; i++) {
@@ -278,9 +285,25 @@ async function togglePopup(typeRequested) {
         const streamButton = document.createElement("button");
         streamButton.textContent = stream[0].title;
         streamButton.className = "stream-button";
-        streamButton.dataset.gameIndex = i.toString();
         streamButton.onclick = () => {
-          displayStreamFunc(i);
+          moveToMirrorSelection(i);
+        };
+        popup.appendChild(streamButton);
+      }
+    } else if (popupType === "choose mirror") {
+      popupTitle.textContent = "Choose a stream mirror:";
+
+      const displayStream = async (mirrorIndex) => {
+        await getStreams(mirrorIndex);
+        togglePopup("choose mirror");
+      };
+
+      for (let i = 0; i < streamsArr[0].length; i++) {
+        const streamButton = document.createElement("button");
+        streamButton.textContent = `Mirror ${i + 1}`;
+        streamButton.className = "stream-button";
+        streamButton.onclick = () => {
+          displayStream(i);
         };
         popup.appendChild(streamButton);
       }
@@ -293,7 +316,7 @@ async function togglePopup(typeRequested) {
 function scrollToStreams() {
   if (frames !== null && frames.length > 0) {
     frameContainer.scrollIntoView({ behavior: "smooth" });
-  } else if (popupType === "choose stream") {
+  } else if (popupType === "choose stream" || popupType === "choose mirror") {
     popupFrame.scrollIntoView({ behavior: "smooth" });
   } else {
     document
@@ -339,8 +362,8 @@ function isMobile() {
   );
 }
 
-async function getStreams(pickMobileStream = false) {
-  if (!pickMobileStream) {
+async function getStreams(mobileMirrorIndex = null) {
+  if (mobileMirrorIndex === null) {
     // get stream links and display them. To be called on page load
     const response = await fetch("/streams");
     streamsArr = await response.json();
@@ -353,11 +376,15 @@ async function getStreams(pickMobileStream = false) {
     document.getElementById("loading-screen").style.display = "none";
   }
 
-  if (isMobile() && !pickMobileStream) {
+  if (isMobile() && mobileMirrorIndex === null) {
     await togglePopup("choose stream");
   } else {
+    let mirrorIndex = 0;
+    if (mobileMirrorIndex !== null) {
+      mirrorIndex = mobileMirrorIndex;
+    }
     for (let index = 0; index < Math.min(streamsArr.length, 4); index++) {
-      createFrame(index, 0);
+      createFrame(index, mirrorIndex);
       const timeout = setTimeout(() => {
         removeTitle(index);
       }, titleTimeout);
@@ -389,7 +416,7 @@ async function getStreams(pickMobileStream = false) {
 window.onload = async () => {
   document.getElementById("scroll-button").onclick = scrollToStreams;
   document.getElementById("help-instructions").onclick = async () => {
-    await togglePopup("help");
+    await toggleHelpPopup();
   };
   await getStreams();
 
