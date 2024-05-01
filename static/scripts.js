@@ -65,12 +65,12 @@ document.onkeydown = async (e) => {
   } else if (key === scrollKeybind) {
     scrollToStreams();
   } else if (key === helpKeybind) {
-    await togglePopup(false);
+    await toggleHelpPopup();
   } else if (frames !== null && frames.length > 0) {
     if (key === urlTypeKeybind) {
       toggleUrlType();
     } else if (key === scoresKeybind) {
-      await togglePopup(true);
+      await togglePopup("scores");
     } else if (key === titleKeybind) {
       for (let index = 0; index < frames.length; index++) {
         changeTitle(index, "");
@@ -83,6 +83,13 @@ function removeTitle(index) {
   // fade stream title out
   const title = frames[index].querySelector("h2");
   title.style.opacity = 0;
+}
+
+async function toggleHelpPopup() {
+  // don't allow help popup while choosing stream/mirror on mobile
+  if (popupType !== "choose stream" && popupType !== "choose mirror") {
+    await togglePopup("help");
+  }
 }
 
 function changeTitle(index, newTitle) {
@@ -234,19 +241,18 @@ function toggleUrlType() {
   }
 }
 
-async function togglePopup(showScores) {
-  if (
-    (popupType === "scores" && showScores) ||
-    (popupType == "help" && !showScores)
-  ) {
+async function togglePopup(typeRequested) {
+  if (popupType === typeRequested) {
     popupFrame.style.display = "none";
     popupType = null;
   } else {
     popup.querySelectorAll("*").forEach((elem) => elem.remove());
     const popupTitle = document.createElement("h2");
+    popupTitle.id = "popup-title";
     popup.appendChild(popupTitle);
+    popupType = typeRequested;
 
-    if (showScores) {
+    if (popupType === "scores") {
       const response = await fetch("/scores");
       const scoresArr = await response.json();
 
@@ -258,11 +264,49 @@ async function togglePopup(showScores) {
         line.textContent = text;
         popup.appendChild(line);
       }
-      popupType = "scores";
-    } else {
+    } else if (popupType === "help") {
       showHelpMessage(popup, popupTitle);
+    } else if (popupType === "choose stream") {
+      popupTitle.textContent =
+        "Watching multiple streams not supported on mobile. Choose a stream:";
 
-      popupType = "help";
+      const moveToMirrorSelection = async (index) => {
+        streamsArr = [streamsArr[index]];
+        if (streamsArr[0].length > 1) {
+          togglePopup("choose mirror");
+        } else {
+          await getStreams(0);
+          togglePopup("choose stream");
+        }
+      };
+
+      for (let i = 0; i < streamsArr.length; i++) {
+        const stream = streamsArr[i];
+        const streamButton = document.createElement("button");
+        streamButton.textContent = stream[0].title;
+        streamButton.className = "stream-button";
+        streamButton.onclick = () => {
+          moveToMirrorSelection(i);
+        };
+        popup.appendChild(streamButton);
+      }
+    } else if (popupType === "choose mirror") {
+      popupTitle.textContent = "Choose a stream mirror:";
+
+      const displayStream = async (mirrorIndex) => {
+        await getStreams(mirrorIndex);
+        togglePopup("choose mirror");
+      };
+
+      for (let i = 0; i < streamsArr[0].length; i++) {
+        const streamButton = document.createElement("button");
+        streamButton.textContent = `Mirror ${i + 1}`;
+        streamButton.className = "stream-button";
+        streamButton.onclick = () => {
+          displayStream(i);
+        };
+        popup.appendChild(streamButton);
+      }
     }
 
     popupFrame.style.display = "flex";
@@ -272,6 +316,8 @@ async function togglePopup(showScores) {
 function scrollToStreams() {
   if (frames !== null && frames.length > 0) {
     frameContainer.scrollIntoView({ behavior: "smooth" });
+  } else if (popupType === "choose stream" || popupType === "choose mirror") {
+    popupFrame.scrollIntoView({ behavior: "smooth" });
   } else {
     document
       .getElementById("loading-screen")
@@ -305,50 +351,72 @@ function createFrame(gameIndex, mirrorIndex) {
   frameContainer.appendChild(frameDiv);
 }
 
-async function getStreams() {
-  // get stream links and display them. To be called on page load
-  const response = await fetch("/streams");
-  streamsArr = await response.json();
+function isMobile() {
+  // determine if on mobile by checking if touchscreen and if screen height/width
+  // is < 600px, because mobile automatically fullscreens video, thus not making
+  // it possible to watch multiple streams at once. Admittedly not the most robust
+  // way to check, but works well enough
+  return (
+    window.matchMedia("(pointer: coarse)").matches &&
+    (window.innerWidth < 600 || window.innerHeight < 600)
+  );
+}
 
-  for (let index = 0; index < Math.min(streamsArr.length, 4); index++) {
-    createFrame(index, 0);
-    const timeout = setTimeout(() => {
-      removeTitle(index);
-    }, titleTimeout);
-    timeouts.push(timeout);
-  }
+async function getStreams(mobileMirrorIndex = null) {
+  if (mobileMirrorIndex === null) {
+    // get stream links and display them. To be called on page load
+    const response = await fetch("/streams");
+    streamsArr = await response.json();
 
-  frames = document.getElementsByClassName("frame");
-
-  if (streamsArr.length === 0) {
-    document.getElementById("loading-text").textContent = "No games found.";
-    return;
-  }
-
-  // wait for frames to load, then mute all but first stream
-  setTimeout(() => {
-    for (let i = 0; i < frames.length; i++) {
-      if (i > 0) {
-        toggleFrameMute(i, "mute");
-      }
+    if (streamsArr.length === 0) {
+      document.getElementById("loading-text").textContent = "No games found.";
+      return;
     }
-  }, muteMessageTimeout);
 
-  document.getElementById("loading-screen").style.display = "none";
-  frameContainerClass =
-    "container-" + Math.min(streamsArr.length, 4).toString();
-  frameContainer.style.display = "grid";
-  frameContainer.className = frameContainerClass;
+    document.getElementById("loading-screen").style.display = "none";
+  }
 
-  if (streamsArr.length === 3) {
-    frames[2].id = "third-stream";
+  if (isMobile() && mobileMirrorIndex === null) {
+    await togglePopup("choose stream");
+  } else {
+    let mirrorIndex = 0;
+    if (mobileMirrorIndex !== null) {
+      mirrorIndex = mobileMirrorIndex;
+    }
+    for (let index = 0; index < Math.min(streamsArr.length, 4); index++) {
+      createFrame(index, mirrorIndex);
+      const timeout = setTimeout(() => {
+        removeTitle(index);
+      }, titleTimeout);
+      timeouts.push(timeout);
+    }
+
+    frames = document.getElementsByClassName("frame");
+
+    // wait for frames to load, then mute all but first stream
+    setTimeout(() => {
+      for (let i = 0; i < frames.length; i++) {
+        if (i > 0) {
+          toggleFrameMute(i, "mute");
+        }
+      }
+    }, muteMessageTimeout);
+
+    frameContainerClass =
+      "container-" + Math.min(streamsArr.length, 4).toString();
+    frameContainer.style.display = "grid";
+    frameContainer.className = frameContainerClass;
+
+    if (streamsArr.length === 3) {
+      frames[2].id = "third-stream";
+    }
   }
 }
 
 window.onload = async () => {
   document.getElementById("scroll-button").onclick = scrollToStreams;
   document.getElementById("help-instructions").onclick = async () => {
-    await togglePopup(false);
+    await toggleHelpPopup();
   };
   await getStreams();
 
